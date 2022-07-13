@@ -1,11 +1,10 @@
-# Tines Lambda Proxy
+# Lambda Proxy
 
 ## Testing
 
 ```bash
 # Navigate to the lambda-code
-cd /path/to/sfc-security-tf
-cd ./modules/tines/lambda-code
+cd /path/to/lambda-code/
 
 # Activate the venv
 python3 -m venv ./venv
