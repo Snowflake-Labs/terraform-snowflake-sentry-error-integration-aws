@@ -1,8 +1,9 @@
 locals {
   source_code_path          = "lambda-code"
   output_dist_file_name     = "lambda-code.zip"
-  runtime                   = "python3.8"
+  runtime                   = "python3.9"
   source_code_dist_dir_name = "lambda-code-dist"
+  lambda_sg_ids             = var.deploy_lambda_in_vpc && length(var.lambda_security_group_ids) == 0 ? [aws_security_group.sentry_integration_lambda_sg.0.id] : var.lambda_security_group_ids
 }
 
 resource "null_resource" "install_python_dependencies" {
@@ -40,9 +41,9 @@ data "archive_file" "lambda_code" {
   depends_on = [null_resource.install_python_dependencies]
 }
 
-resource "aws_lambda_function" "tines_lambda" {
+resource "aws_lambda_function" "sentry_integration_lambda" {
   function_name    = local.lambda_function_name
-  role             = aws_iam_role.tines_lambda_role.arn
+  role             = aws_iam_role.sentry_integration_lambda_assume_role.arn
   handler          = "lambda_function.lambda_handler"
   memory_size      = "128"
   runtime          = local.runtime
@@ -52,11 +53,13 @@ resource "aws_lambda_function" "tines_lambda" {
   source_code_hash = data.archive_file.lambda_code.output_base64sha256
 
   vpc_config {
-    subnet_ids         = var.private_subnets
-    security_group_ids = [aws_security_group.tines_lambda.id]
+    security_group_ids = var.deploy_lambda_in_vpc ? local.lambda_sg_ids : []
+    subnet_ids         = var.deploy_lambda_in_vpc ? var.lambda_subnet_ids : []
   }
 
-  depends_on = [aws_cloudwatch_log_group.tines_lambda_log_group]
+  depends_on = [
+    aws_cloudwatch_log_group.sentry_integration_lambda_log_group
+  ]
 }
 
 resource "null_resource" "clean_up_pip_files" {
@@ -77,13 +80,13 @@ resource "null_resource" "clean_up_pip_files" {
     }
   }
 
-  depends_on = [aws_lambda_function.tines_lambda]
+  depends_on = [aws_lambda_function.sentry_integration_lambda]
 }
 
 resource "aws_lambda_permission" "api_gateway" {
   statement_id  = "AllowAPIGatewayToInvoke"
-  function_name = aws_lambda_function.tines_lambda.function_name
+  function_name = aws_lambda_function.sentry_integration_lambda.function_name
   principal     = "apigateway.amazonaws.com"
   action        = "lambda:InvokeFunction"
-  source_arn    = "${module.api_gateway.apigatewayv2_api_arn}/*/*"
+  source_arn    = "${aws_api_gateway_rest_api.ef_to_lambda.execution_arn}/*/*"
 }

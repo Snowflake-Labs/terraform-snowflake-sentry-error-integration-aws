@@ -13,7 +13,7 @@ variable "aws_region" {
 
 variable "aws_cloudwatch_metric_namespace" {
   type        = string
-  description = "prefix for CloudWatch Metrics that GEFF writes"
+  description = "cloudwatch prefix for lambda metrics."
   default     = "*"
 }
 
@@ -29,21 +29,23 @@ variable "env" {
 }
 
 variable "snowflake_integration_user_roles" {
-  type        = list(string)
-  default     = []
-  description = "List of roles to which GEFF infra will GRANT USAGE ON INTEGRATION perms."
+  type = list(string)
+  default = [
+    "SECURITY_MONITORING_RL"
+  ]
+  description = "List of roles to which Sentry infra will GRANT USAGE ON INTEGRATION perms."
 }
 
 variable "deploy_lambda_in_vpc" {
   type        = bool
-  description = "The security group VPC ID for the lambda function."
+  description = "The SG VPC ID for the Lambda function."
   default     = false
 }
 
 variable "lambda_security_group_ids" {
   type        = list(string)
   default     = []
-  description = "The security group IDs for the lambda function."
+  description = "The SG IDs for the lambda function."
 }
 
 variable "lambda_subnet_ids" {
@@ -58,36 +60,6 @@ variable "vpc_id" {
   default     = null
 }
 
-variable "sentry_integration_image_version" {
-  type        = string
-  description = "Version of the GEFF docker image."
-  default     = "latest"
-}
-
-variable "data_bucket_arns" {
-  type        = list(string)
-  default     = []
-  description = "List of Bucket ARNs for the s3_reader role to read from."
-}
-
-variable "sentry_integration_secret_arns" {
-  type        = list(string)
-  default     = ["*"]
-  description = "GEFF Secrets."
-}
-
-variable "sentry_integration_dsn" {
-  type        = string
-  description = "GEFF project Sentry DSN."
-  default     = ""
-}
-
-variable "sentry_driver_dsn" {
-  type        = string
-  description = "Snowflake errors project Sentry DSN."
-  default     = ""
-}
-
 variable "arn_format" {
   type        = string
   description = "ARN format could be aws or aws-us-gov. Defaults to non-gov."
@@ -98,13 +70,10 @@ data "aws_caller_identity" "current" {}
 data "aws_region" "current" {}
 data "aws_partition" "current" {}
 
+
 locals {
   account_id = data.aws_caller_identity.current.account_id
   aws_region = data.aws_region.current.name
-}
-
-locals {
-  lambda_image_repo_version = "${local.lambda_image_repo}:${var.sentry_integration_image_version}"
 }
 
 locals {
@@ -116,4 +85,8 @@ locals {
   lambda_function_name    = "${local.sentry_integration_prefix}-lambda"
   api_gw_caller_role_name = "${local.sentry_integration_prefix}-api-gateway-caller"
   api_gw_logger_role_name = "${local.sentry_integration_prefix}-api-gateway-logger"
+
+  sentry_sns_role_name   = "${local.sentry_integration_prefix}-sns"
+  sentry_sns_policy_name = "${local.sentry_integration_prefix}-sns-policy"
+  sentry_sns_topic_name  = "${local.sentry_integration_prefix}-sns-topic"
 }

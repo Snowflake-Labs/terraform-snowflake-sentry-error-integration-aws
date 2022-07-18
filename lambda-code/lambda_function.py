@@ -3,23 +3,17 @@ from json.decoder import JSONDecodeError
 from typing import Dict, Text
 
 import requests
-from utils import (
-    LOG,
-    WEBHOOKS,
-    error_response,
-    extract_from_b64,
-    get_secrets,
-    is_supported,
-    verify_request,
-)
+from utils import LOG
 
+
+URL: str = None
 
 def lambda_handler(event, context):
     headers: dict = event['headers']
     body: dict = event['body']
 
     r = requests.post(
-        tines_url,
+        URL,
         headers=headers,
         data=body.encode('utf-8'),
     )

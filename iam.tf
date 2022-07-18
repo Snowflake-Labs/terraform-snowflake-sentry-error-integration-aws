@@ -109,25 +109,6 @@ data "aws_iam_policy_document" "sentry_integration_lambda_policy_doc" {
     ]
   }
 
-  # Write metrics to cloudwatch
-  statement {
-    sid       = "WriteCloudWatchMetrics"
-    effect    = "Allow"
-    resources = ["*"]
-    actions = [
-      "cloudwatch:PutMetricData",
-    ]
-
-    condition {
-      test     = "StringLike"
-      variable = "cloudwatch:namespace"
-
-      values = [
-        var.aws_cloudwatch_metric_namespace
-      ]
-    }
-  }
-
   statement {
     sid       = "EcrScanImages"
     effect    = "Allow"
@@ -140,42 +121,6 @@ data "aws_iam_policy_document" "sentry_integration_lambda_policy_doc" {
       "ecr:BatchGetImage",
       "ecr:DescribeImageScanFindings",
       "ecr:StartImageScan",
-    ]
-  }
-
-  # Write to S3
-  statement {
-    sid       = "WriteToS3"
-    effect    = "Allow"
-    resources = ["${module.storage_integration.bucket_arn}/*"]
-    actions = [
-      "s3:PutObject",
-      "s3:GetObject",
-      "s3:GetObjectVersion",
-    ]
-  }
-
-  # Invoke a child lambda
-  statement {
-    sid       = "InvokeLambda"
-    effect    = "Allow"
-    resources = [aws_lambda_function.sentry_integration_lambda.arn]
-    actions = [
-      "lambda:InvokeFunction"
-    ]
-  }
-
-  # Access to secrets needed by lambda
-  statement {
-    sid       = "AccessSecrets"
-    effect    = "Allow"
-    resources = var.sentry_integration_secret_arns
-    actions = [
-      "secretsmanager:GetResourcePolicy",
-      "secretsmanager:GetSecretValue",
-      "secretsmanager:DescribeSecret",
-      "secretsmanager:ListSecretVersionIds",
-      "secretsmanager:ListSecrets"
     ]
   }
 
@@ -205,4 +150,81 @@ resource "aws_iam_policy_attachment" "sentry_integration_lambda_vpc_policy_attac
   name       = "${local.sentry_integration_prefix}-lambda-vpc-policy-attachment"
   roles      = [aws_iam_role.sentry_integration_lambda_assume_role.name]
   policy_arn = data.aws_iam_policy.sentry_integration_lambda_vpc_policy[0].arn
+}
+
+# -----------------------------------------------------------------------------------------------
+# 4. Role, Role Policy and Policy attachment for the role that the external function will assume.
+# -----------------------------------------------------------------------------------------------
+resource "aws_iam_role" "sentry_sns_role" {
+  name = local.sentry_sns_role_name
+  path = "/"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Condition = {
+          StringEquals = {
+            "sts:ExternalId" = snowflake_notification_integration.pipe_errors_integration.aws_sns_external_id
+          }
+        }
+        Effect = "Allow"
+        Principal = {
+          AWS = snowflake_notification_integration.pipe_errors_integration.aws_sns_iam_user_arn
+        }
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy" "sentry_sns_role_policy" {
+  name = local.sentry_sns_policy_name
+  role = aws_iam_role.sentry_sns_role.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect   = "Allow"
+        Action   = "sns:Publish"
+        Resource = aws_sns_topic.sentry_integration_sns.arn
+      }
+    ]
+  })
+}
+
+# 5. SNS Topic Policy, SNS Topic Policy Attachment
+data "aws_iam_policy_document" "sentry_integration_sns_topic_policy_doc" {
+  policy_id = local.sentry_sns_policy_name
+
+  statement {
+    sid       = "SNSPublish"
+    effect    = "Allow"
+    resources = [aws_sns_topic.sentry_integration_sns.arn]
+    actions   = ["SNS:Publish"]
+
+    principals {
+      type        = "AWS"
+      identifiers = ["*"]
+    }
+
+  }
+
+  statement {
+    sid       = "SNSSubscribe"
+    effect    = "Allow"
+    resources = [aws_sns_topic.sentry_integration_sns.arn]
+    actions   = ["sns:Subscribe"]
+
+    principals {
+      type        = "AWS"
+      identifiers = ["*"]
+    }
+  }
+}
+
+resource "aws_sns_topic_policy" "sentry_integration_sns_topic_policy" {
+  arn    = aws_sns_topic.sentry_integration_sns.arn
+  policy = data.aws_iam_policy_document.sentry_integration_sns_topic_policy_doc.json
 }

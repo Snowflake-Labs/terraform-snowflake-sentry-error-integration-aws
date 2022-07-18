@@ -9,11 +9,11 @@ terraform {
 
     snowflake = {
       source  = "Snowflake-Labs/snowflake"
-      version = ">= 0.37.1"
+      version = ">= 0.39.0"
 
       configuration_aliases = [
         snowflake.api_integration_role,
-        snowflake.storage_integration_role,
+        snowflake.notification_integration_role,
       ]
     }
   }

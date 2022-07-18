@@ -8,19 +8,14 @@ output "api_integration_name" {
   value       = snowflake_api_integration.sentry_integration_api_integration.name
 }
 
-output "storage_integration_name" {
+output "notification_integration_name" {
   description = "Name of Storage integration"
-  value       = module.storage_integration.storage_integration_name
-}
-
-output "bucket_url" {
-  description = "GEFF S3 Bucket URL"
-  value       = module.storage_integration.bucket_url
+  value       = snowflake_notification_integration.pipe_errors_integration.name
 }
 
 output "sns_topic_arn" {
-  description = "GEFF S3 SNS Topic to use while creating the Snowflake PIPE."
-  value       = module.storage_integration.sns_topic_arn
+  description = "Sentry SNS topic."
+  value       = aws_sns_topic.sentry_integration_sns.arn
 }
 
 output "sentry_integration_lambda_sg_ids" {
