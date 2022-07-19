@@ -83,6 +83,18 @@ variable "security_monitoring_role" {
   default     = "ACCOUNTADMIN"
 }
 
+variable "database_name" {
+  type        = string
+  description = "Database where the EF and tasks are created."
+  default     = "SNOWALERT"
+}
+
+variable "schema_name" {
+  type        = string
+  description = "Schema where the EF and tasks are created."
+  default     = "MONITORING"
+}
+
 data "aws_caller_identity" "current" {}
 data "aws_region" "current" {}
 data "aws_partition" "current" {}

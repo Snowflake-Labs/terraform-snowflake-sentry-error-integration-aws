@@ -18,3 +18,10 @@ provider "snowflake" {
   account = var.snowflake_account
   role    = var.security_integration_role
 }
+
+provider "snowflake" {
+  alias = "monitoring_role"
+
+  account = var.snowflake_account
+  role    = var.security_monitoring_role
+}

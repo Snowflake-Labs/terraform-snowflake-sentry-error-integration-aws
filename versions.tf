@@ -14,6 +14,7 @@ terraform {
       configuration_aliases = [
         snowflake.api_integration_role,
         snowflake.notification_integration_role,
+        snowflake.monitoring_role,
       ]
     }
   }

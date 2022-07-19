@@ -1,8 +1,10 @@
 locals {
-  source_code_path          = "lambda-code"
+  source_code_repo_dir_path = "lambda-code"
+  lambda_code_dir           = "lambda_src"
   output_dist_file_name     = "lambda-code.zip"
   runtime                   = "python3.9"
-  source_code_dist_dir_name = "lambda-code-dist"
+  source_code_dist_dir_path = "lambda-code-dist"
+  upload_dir                = "sentry_integration"
   lambda_sg_ids             = var.deploy_lambda_in_vpc && length(var.lambda_security_group_ids) == 0 ? [aws_security_group.sentry_integration_lambda_sg.0.id] : var.lambda_security_group_ids
 }
 
@@ -17,8 +19,10 @@ resource "null_resource" "install_python_dependencies" {
     command = "bash ${path.module}/scripts/create_dist_pkg.sh"
 
     environment = {
-      source_code_path          = local.source_code_path
-      source_code_dist_dir_name = local.source_code_dist_dir_name
+      source_code_repo_dir_path = "${local.source_code_repo_dir_path}"
+      lambda_code_dir_path      = "${local.source_code_repo_dir_path}/${local.lambda_code_dir}"
+      source_code_dist_dir_path = local.source_code_dist_dir_path
+      source_code_upload_dir    = local.upload_dir
       runtime                   = local.runtime
       path_module               = path.module
       path_cwd                  = path.cwd
@@ -27,7 +31,7 @@ resource "null_resource" "install_python_dependencies" {
 }
 
 data "archive_file" "lambda_code" {
-  source_dir  = "${path.module}/${local.source_code_dist_dir_name}/"
+  source_dir  = "${path.module}/${local.source_code_dist_dir_path}/"
   output_path = "${path.module}/${local.output_dist_file_name}"
 
   type = "zip"
@@ -42,13 +46,16 @@ data "archive_file" "lambda_code" {
 }
 
 resource "aws_lambda_function" "sentry_integration_lambda" {
-  function_name    = local.lambda_function_name
-  role             = aws_iam_role.sentry_integration_lambda_assume_role.arn
-  handler          = "lambda_function.lambda_handler"
-  memory_size      = "128"
-  runtime          = local.runtime
-  timeout          = "60"
-  publish          = null
+  function_name = local.lambda_function_name
+
+  role    = aws_iam_role.sentry_integration_lambda_assume_role.arn
+  handler = "sentry_integration.lambda_function.lambda_handler"
+
+  memory_size = "4096" # 4 GB
+  runtime     = local.runtime
+  timeout     = "900" # 15 mins
+  publish     = null
+
   filename         = data.archive_file.lambda_code.output_path
   source_code_hash = data.archive_file.lambda_code.output_base64sha256
 
@@ -73,7 +80,7 @@ resource "null_resource" "clean_up_pip_files" {
     command = "bash ${path.module}/scripts/clean_dist_pkg.sh"
 
     environment = {
-      source_code_dist_dir_name = local.source_code_dist_dir_name
+      source_code_dist_dir_path = local.source_code_dist_dir_path
       path_module               = path.module
       path_cwd                  = path.cwd
       dist_archive_file_name    = local.output_dist_file_name
