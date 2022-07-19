@@ -1,10 +1,20 @@
+import os
 import logging
 
 import sentry_sdk
 from sentry_sdk import push_scope
 
-CONSOLE_LOGGER = logging.getLogger('console')
-SENTRY_DRIVER_LOGGER = logging.getLogger('sentry_driver')
+from .log import setup_logger
+
+logging_level = os.environ.get('LOGGING_LEVEL')
+CONSOLE_LOGGER = setup_logger(
+    'console',
+    logging.INFO if logging_level in {None, 'INFO', 'info'}
+    else logging.DEBUG
+)
+SENTRY_DRIVER_LOGGER = setup_logger(
+    'sentry_driver', logging.INFO
+)
 
 
 def process_row(

@@ -1,3 +1,4 @@
+import re
 import json
 import logging
 from typing import Any, Dict, Text
@@ -8,6 +9,26 @@ from sentry_sdk.integrations.logging import LoggingIntegration, ignore_logger
 from .log import setup_logger
 
 ULILS_LOGGER = setup_logger('utils', logging.DEBUG)
+
+
+def format_row_dict(s, ps):
+    """format string s with params ps, preserving type of singular references
+
+    >>> format_row_dict('{0}', [{'a': 'b'}])
+    {'a': 'b'}
+
+    >>> format_row_dict('{"z": [{0}]}', [{'a': 'b'}])
+    """
+
+    def replace_refs(s, ps):
+        for i, p in enumerate(ps):
+            old = '{' + str(i) + '}'
+            new = json.dumps(p) if isinstance(p, (list, dict)) else str(p)
+            s = s.replace(old, new)
+        return s
+
+    m = re.match(r'{(\d+)}', s)
+    return ps[int(m.group(1))] if m else replace_refs(s, ps)
 
 
 def error_response(code: int) -> Dict[str, object]:

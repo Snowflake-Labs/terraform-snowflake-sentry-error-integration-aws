@@ -64,6 +64,12 @@ resource "aws_lambda_function" "sentry_integration_lambda" {
     subnet_ids         = var.deploy_lambda_in_vpc ? var.lambda_subnet_ids : []
   }
 
+  environment {
+    variables = {
+      LOGGING_LEVEL = var.env == "prod" ? "INFO" : "DEBUG"
+    }
+  }
+
   depends_on = [
     aws_cloudwatch_log_group.sentry_integration_lambda_log_group
   ]

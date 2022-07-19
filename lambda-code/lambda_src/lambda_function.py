@@ -4,15 +4,15 @@ import os.path
 import sys
 from base64 import b64encode
 from gzip import compress
-from json import dumps, loads
-from typing import Any, Dict, Text
+import json
+from typing import Any, Dict, List, Text, Optional
 
 # pip install --target ./site-packages -r requirements.txt
 dir_path = os.path.dirname(os.path.realpath(__file__))
 sys.path.append(os.path.join(dir_path, 'site-packages'))
 
 from .sentry_driver import process_row
-from .utils import create_response, setup_sentry
+from .utils import create_response, setup_sentry, format_row_dict
 
 BATCH_ID_HEADER = 'sf-external-function-query-batch-id'
 DESTINATION_URI_HEADER = 'sf-custom-destination-uri'
@@ -20,6 +20,29 @@ DESTINATION_URI_HEADER = 'sf-custom-destination-uri'
 CONSOLE_LOGGER = logging.getLogger('console')
 SENTRY_DRIVER_LOGGER = logging.getLogger('sentry_driver')
 
+def get_dsn(headers: Any, data: List[Any]) -> Optional[str]:
+    """Return the first dsn
+
+    Args:
+        headers (Any): _description_
+        data (List[Any]): _description_
+
+    Returns:
+        Optional[str]: _description_
+    """
+    dsn = None
+    for row_number, *args in data:
+        CONSOLE_LOGGER.debug(f'Processing row: {row_number}.')
+
+        process_row_params = {
+            k.replace('sf-custom-', '').replace('-', '_'): format_row_dict(v, args)
+            for k, v in headers.items()
+            if k.startswith('sf-custom-')
+        }
+
+        dsn = process_row_params.get('dsn')
+        break
+    return dsn
 
 def sync_flow(event: Any, context: Any = None) -> Dict[Text, Any]:
     """
@@ -34,7 +57,7 @@ def sync_flow(event: Any, context: Any = None) -> Dict[Text, Any]:
     """
     CONSOLE_LOGGER.debug('Destination header not found in a POST and hence using sync_flow().')
     headers = event['headers']
-    request_body = loads(event['body'])
+    request_body = json.loads(event['body'])
     response_data = []
 
     # Convert sf-custom- prefixed keys to regular keys without that prefix
@@ -42,14 +65,14 @@ def sync_flow(event: Any, context: Any = None) -> Dict[Text, Any]:
         CONSOLE_LOGGER.debug(f'Processing row: {row_number}.')
 
         process_row_params = {
-            k.replace('sf-custom-', '').replace('-', '_'): format(v, args)
+            k.replace('sf-custom-', '').replace('-', '_'): format_row_dict(v, args)
             for k, v in headers.items()
             if k.startswith('sf-custom-')
         }
         result = process_row(**process_row_params)
         response_data.append([row_number, result])
 
-    result_data_json = dumps({'data': result}, default=str)
+    result_data_json = json.dumps({'data': result}, default=str)
     return {
         'statusCode': 200,
         'body': b64encode(compress(result_data_json.encode())).decode(),
@@ -72,12 +95,14 @@ def lambda_handler(event: Any, context: Any) -> Dict[Text, Any]:
     """
     method = event.get('httpMethod')
     headers = event['headers']
+    request_body = json.loads(event['body'])
     CONSOLE_LOGGER.debug(f'lambda_handler() called.')
     destination = headers.get(DESTINATION_URI_HEADER)
-    dsn = headers.get('sf-custom-dsn')
+    dsn = get_dsn(headers, request_body['data'])
+    CONSOLE_LOGGER.debug(f'Sentry DSN: {dsn}')
 
     if not dsn:
-        return create_response(400, 'DSN is not set and is required to log errors to Sentry.')
+        return create_response(400, 'Sentry DSN is not set and is required to log errors to Sentry.')
     else:
         CONSOLE_LOGGER.debug(f'Setting up Sentry SDK for dsn: {dsn}.')
         setup_sentry(dsn)
