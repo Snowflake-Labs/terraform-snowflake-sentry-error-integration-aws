@@ -12,9 +12,9 @@ terraform {
       version = ">= 0.39.0"
 
       configuration_aliases = [
-        snowflake.api_integration_role,
-        snowflake.notification_integration_role,
-        snowflake.monitoring_role,
+        snowflake.security_api_integration_role,
+        snowflake.security_notification_integration_role,
+        snowflake.security_monitoring_role,
       ]
     }
   }

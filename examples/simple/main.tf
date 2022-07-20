@@ -18,9 +18,9 @@ module "sentry_integration" {
   snowflake_integration_user_roles = var.snowflake_integration_user_roles
 
   providers = {
-    snowflake.api_integration_role          = snowflake.api_integration_role
-    snowflake.notification_integration_role = snowflake.notification_integration_role
-    snowflake.monitoring_role               = snowflake.monitoring_role
-    aws                                     = aws
+    snowflake.security_api_integration_role          = snowflake.security_api_integration_role
+    snowflake.security_notification_integration_role = snowflake.security_notification_integration_role
+    snowflake.security_monitoring_role               = snowflake.security_monitoring_role
+    aws                                              = aws
   }
 }

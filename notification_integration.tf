@@ -1,5 +1,5 @@
 resource "snowflake_notification_integration" "pipe_errors_integration" {
-  provider = snowflake.notification_integration_role
+  provider = snowflake.security_notification_integration_role
 
   name    = "${upper(replace(var.prefix, "-", "_"))}_NOTIFICATION_INTEGRATION"
   comment = "A notification integration."
@@ -15,7 +15,7 @@ resource "snowflake_notification_integration" "pipe_errors_integration" {
 }
 
 resource "snowflake_integration_grant" "sentry_integration_notification_integration_grant" {
-  provider = snowflake.notification_integration_role
+  provider = snowflake.security_notification_integration_role
 
   integration_name  = snowflake_notification_integration.pipe_errors_integration.name
   privilege         = "USAGE"
