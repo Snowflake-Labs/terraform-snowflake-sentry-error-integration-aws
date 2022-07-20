@@ -22,3 +22,8 @@ output "sentry_integration_lambda_sg_ids" {
   description = "Lambda SG IDs."
   value       = module.sentry_integration.sentry_integration_lambda_sg_ids
 }
+
+output "sentry_integration_sns_iam_role" {
+  description = "SNS IAM Role ARN."
+  value       = module.sentry_integration.sentry_integration_sns_iam_role
+}

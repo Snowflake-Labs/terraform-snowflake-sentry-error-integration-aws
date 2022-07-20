@@ -22,3 +22,8 @@ output "sentry_integration_lambda_sg_ids" {
   description = "Lambda SG IDs."
   value       = var.deploy_lambda_in_vpc && length(var.lambda_security_group_ids) == 0 ? [aws_security_group.sentry_integration_lambda_sg.0.id] : var.lambda_security_group_ids
 }
+
+output "sentry_integration_sns_iam_role" {
+  description = "SNS IAM Role ARN."
+  value       = aws_iam_role.sentry_sns_role.arn
+}
