@@ -57,7 +57,7 @@ def sync_flow(event: Any, context: Any = None) -> Dict[Text, Any]:
     Returns:
         Dict[Text, Any]: Represents the response status and data.
     """
-    CONSOLE_LOGGER.debug('Destination header not found in a POST and hence using sync_flow().')
+    CONSOLE_LOGGER.debug('Using sync_flow().')
     headers = event['headers']
     request_body = json.loads(event['body'])
     response_data = []
@@ -76,12 +76,14 @@ def sync_flow(event: Any, context: Any = None) -> Dict[Text, Any]:
         response_data.append([row_number, result])
 
     result_data_json = json.dumps({'data': result}, default=str)
-    return {
+    response = {
         'statusCode': 200,
         'body': b64encode(compress(result_data_json.encode())).decode(),
         'isBase64Encoded': True,
         'headers': {'Content-Encoding': 'gzip'}
     }
+    print(response)
+    return response
 
 
 def lambda_handler(event: Any, context: Any) -> Dict[Text, Any]:
