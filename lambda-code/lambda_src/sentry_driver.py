@@ -23,6 +23,7 @@ def process_row(
     error: str,
     ts: str,
     history_url: str,
+    **kwargs,
 ):
     """
     Each row is sent to Sentry via the SENTRY_DRIVER_LOGGER.
