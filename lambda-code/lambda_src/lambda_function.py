@@ -20,6 +20,7 @@ DESTINATION_URI_HEADER = 'sf-custom-destination-uri'
 CONSOLE_LOGGER = logging.getLogger('console')
 SENTRY_DRIVER_LOGGER = logging.getLogger('sentry_driver')
 
+
 def get_dsn(headers: Any, data: List[Any]) -> Optional[str]:
     """Return the first dsn
 
@@ -43,6 +44,7 @@ def get_dsn(headers: Any, data: List[Any]) -> Optional[str]:
         dsn = process_row_params.get('dsn')
         break
     return dsn
+
 
 def sync_flow(event: Any, context: Any = None) -> Dict[Text, Any]:
     """
@@ -69,6 +71,7 @@ def sync_flow(event: Any, context: Any = None) -> Dict[Text, Any]:
             for k, v in headers.items()
             if k.startswith('sf-custom-')
         }
+        process_row_params.pop('dsn')
         result = process_row(**process_row_params)
         response_data.append([row_number, result])
 
