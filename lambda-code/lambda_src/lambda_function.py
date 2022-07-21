@@ -106,9 +106,9 @@ def lambda_handler(event: Any, context: Any) -> Dict[Text, Any]:
 
     if not dsn:
         return create_response(400, 'Sentry DSN is not set and is required to log errors to Sentry.')
-    else:
-        CONSOLE_LOGGER.debug(f'Setting up Sentry SDK for dsn: {dsn}.')
-        setup_sentry(dsn)
+
+    CONSOLE_LOGGER.debug(f'Setting up Sentry SDK for dsn: {dsn}.')
+    setup_sentry(dsn)
 
     # httpMethod exists implies caller is API Gateway
     if method == 'POST' and destination:
