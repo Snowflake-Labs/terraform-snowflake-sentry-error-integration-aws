@@ -75,14 +75,13 @@ def sync_flow(event: Any, context: Any = None) -> Dict[Text, Any]:
         result = process_row(**process_row_params)
         response_data.append([row_number, result])
 
-    result_data_json = json.dumps({'data': result}, default=str)
+    result_data_json = json.dumps({'data': response_data}, default=str)
     response = {
         'statusCode': 200,
         'body': b64encode(compress(result_data_json.encode())).decode(),
         'isBase64Encoded': True,
         'headers': {'Content-Encoding': 'gzip'}
     }
-    print(response)
     return response
 
 
