@@ -109,5 +109,5 @@ resource "aws_lambda_permission" "allow_invocation_from_sns" {
   function_name = aws_lambda_function.sentry_integration_lambda.function_name
   principal     = "sns.amazonaws.com"
   action        = "lambda:InvokeFunction"
-  source_arn    = aws_sns_topic.instance.arn
+  source_arn    = aws_sns_topic.sentry_integration_sns.arn
 }
