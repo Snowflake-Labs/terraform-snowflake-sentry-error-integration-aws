@@ -103,3 +103,11 @@ resource "aws_lambda_permission" "api_gateway" {
   action        = "lambda:InvokeFunction"
   source_arn    = "${aws_api_gateway_rest_api.ef_to_lambda.execution_arn}/*/*"
 }
+
+resource "aws_lambda_permission" "allow_invocation_from_sns" {
+  statement_id  = "AllowExecutionFromSNS"
+  function_name = aws_lambda_function.sentry_integration_lambda.function_name
+  principal     = "sns.amazonaws.com"
+  action        = "lambda:InvokeFunction"
+  source_arn    = aws_sns_topic.instance.arn
+}
