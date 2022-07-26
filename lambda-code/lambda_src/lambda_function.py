@@ -58,22 +58,27 @@ def sync_flow(event: Any, context: Any = None) -> Dict[Text, Any]:
         Dict[Text, Any]: Represents the response status and data.
     """
     CONSOLE_LOGGER.debug('Using sync_flow().')
-    headers = event['headers']
-    request_body = json.loads(event['body'])
-    response_data = []
+    response_data: List[Any] = []
 
-    # Convert sf-custom- prefixed keys to regular keys without that prefix
-    for row_number, *args in request_body['data']:
-        CONSOLE_LOGGER.debug(f'Processing row: {row_number}.')
+    if 'Records' in event:
+        message = event['Records'][0]['Sns']['Message']
+        CONSOLE_LOGGER.debug(f"From SNS: {message}")
+    else:
+        headers = event['headers']
+        request_body = json.loads(event['body'])
 
-        process_row_params = {
-            k.replace('sf-custom-', '').replace('-', '_'): format_row_dict(v, args)
-            for k, v in headers.items()
-            if k.startswith('sf-custom-')
-        }
-        process_row_params.pop('dsn')
-        result = process_row(**process_row_params)
-        response_data.append([row_number, result])
+        # Convert sf-custom- prefixed keys to regular keys without that prefix
+        for row_number, *args in request_body['data']:
+            CONSOLE_LOGGER.debug(f'Processing row: {row_number}.')
+
+            process_row_params = {
+                k.replace('sf-custom-', '').replace('-', '_'): format_row_dict(v, args)
+                for k, v in headers.items()
+                if k.startswith('sf-custom-')
+            }
+            process_row_params.pop('dsn')
+            result = process_row(**process_row_params)
+            response_data.append([row_number, result])
 
     result_data_json = json.dumps({'data': response_data}, default=str)
     response = {
