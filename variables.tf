@@ -4,6 +4,11 @@ variable "prefix" {
   description = "This will be the prefix used to name the Resources."
 }
 
+variable "default_snowflake_error_dsn" {
+  description = "Default DSN used to initialize the Sentry SDK in python lambda."
+  type        = string
+}
+
 # Optional Variables
 variable "aws_region" {
   description = "The AWS region in which the AWS infrastructure is created."

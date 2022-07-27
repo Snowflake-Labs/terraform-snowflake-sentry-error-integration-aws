@@ -66,7 +66,8 @@ resource "aws_lambda_function" "sentry_integration_lambda" {
 
   environment {
     variables = {
-      LOGGING_LEVEL = var.env == "prod" ? "INFO" : "DEBUG"
+      LOGGING_LEVEL               = var.env == "prod" ? "INFO" : "DEBUG"
+      DEFAULT_SNOWFLAKE_ERROR_DSN = ""
     }
   }
 
