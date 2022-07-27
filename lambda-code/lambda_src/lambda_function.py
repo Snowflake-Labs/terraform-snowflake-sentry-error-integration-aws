@@ -93,7 +93,7 @@ def process_message(message: Any) -> Any:
 
     pipe_full_name = message['pipeName']
     database, schema_and_pipe = pipe_full_name.split(".", 1)
-    schema, pipe_name = schema_and_pipe.split(".", 1)[0]
+    schema, pipe_name = schema_and_pipe.split(".", 1)
 
     history_type = 'COPY'
     error_msg = message['messages']['firstError']
