@@ -134,7 +134,7 @@ def lambda_handler(event: Any, context: Any) -> Dict[Text, Any]:
     method = event.get('httpMethod')
 
     if 'Records' in event and len(event['Records']) > 0:
-        return process_message(event['Records'][0]['Sns']['Message'])
+        return process_message(json.loads(event['Records'][0]['Sns']['Message']))
 
     headers = event['headers']
     request_body = json.loads(event['body'])
