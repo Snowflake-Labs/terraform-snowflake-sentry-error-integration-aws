@@ -21,6 +21,7 @@ DESTINATION_URI_HEADER = 'sf-custom-destination-uri'
 CONSOLE_LOGGER = logging.getLogger('console')
 SENTRY_DRIVER_LOGGER = logging.getLogger('sentry_driver')
 AWS_REGION = os.environ.get('AWS_REGION')
+DEFAULT_SNOWFLAKE_ERROR_DSN = os.environ['DEFAULT_SNOWFLAKE_ERROR_DSN']
 
 
 def get_dsn(headers: Any, data: List[Any]) -> Optional[str]:
@@ -131,24 +132,23 @@ def lambda_handler(event: Any, context: Any) -> Dict[Text, Any]:
     Returns:
         Dict[Text, Any]: Returns the response body.
     """
-    method = event.get('httpMethod')
 
-    if 'Records' in event and len(event['Records']) > 0:
-        return process_message(json.loads(event['Records'][0]['Sns']['Message']))
-
-    headers = event['headers']
-    request_body = json.loads(event['body'])
-    CONSOLE_LOGGER.debug(f'lambda_handler() called.')
-    destination = headers.get(DESTINATION_URI_HEADER)
-    dsn = get_dsn(headers, request_body['data'])
-    CONSOLE_LOGGER.debug(f'Sentry DSN: {dsn}')
-
-    if not dsn:
-        return create_response(400, 'Sentry DSN is not set and is required to log errors to Sentry.')
+    dsn: str = DEFAULT_SNOWFLAKE_ERROR_DSN
+    if 'headers' in event:
+        headers = event['headers']
+        request_body = json.loads(event['body'])
+        CONSOLE_LOGGER.debug('lambda_handler() called.')
+        destination = headers.get(DESTINATION_URI_HEADER)
+        dsn = get_dsn(headers, request_body['data']) or dsn
+        CONSOLE_LOGGER.debug(f'Sentry DSN: {dsn}')
 
     CONSOLE_LOGGER.debug(f'Setting up Sentry SDK for dsn: {dsn}.')
     setup_sentry(dsn)
 
+    if 'Records' in event and len(event['Records']) > 0:
+        return process_message(json.loads(event['Records'][0]['Sns']['Message']))
+
+    method = event.get('httpMethod')
     # httpMethod exists implies caller is API Gateway
     if method == 'POST' and destination:
         CONSOLE_LOGGER.warning('Async flow is not supported.')
