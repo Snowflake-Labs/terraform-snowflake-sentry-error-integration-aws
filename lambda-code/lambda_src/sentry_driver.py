@@ -1,20 +1,55 @@
-import os
 import logging
+import os
+from datetime import date, timedelta
+from typing import Any
 
 import sentry_sdk
 from sentry_sdk import push_scope
 
 from .log import setup_logger
 
-logging_level = os.environ.get('LOGGING_LEVEL')
+LOGGING_LEVEL = os.environ.get('LOGGING_LEVEL')
+AWS_REGION = os.environ.get('AWS_REGION')
+
 CONSOLE_LOGGER = setup_logger(
     'console',
-    logging.INFO if logging_level in {None, 'INFO', 'info'}
+    logging.INFO if LOGGING_LEVEL in {None, 'INFO', 'info'}
     else logging.DEBUG
 )
 SENTRY_DRIVER_LOGGER = setup_logger(
     'sentry_driver', logging.INFO
 )
+
+
+def process_message(message: Any) -> Any:
+    CONSOLE_LOGGER.debug(f"From SNS: {message}")
+
+    pipe_full_name = message['pipeName']
+    database, schema_and_pipe = pipe_full_name.split(".", 1)
+    schema, pipe_name = schema_and_pipe.split(".", 1)
+
+    history_type = 'COPY'
+    error_msg = message['messages'][0]['firstError'] if message['messages'][0] else 'PIPE ERROR'
+    timestamp = message['timestamp']
+    account_name = message['accountName']
+    date_today = str(date.today())
+    date_1_week_back = str(date.today() - timedelta(days=7))
+
+    pipe_error_history_url: str = (
+        f'https://app.snowflake.com/{AWS_REGION}/{account_name}/compute/history/copies?'
+        + 'type=relative&relative={"tense":"past","value":7,"unit":"day","excludePartial":false,"exclusionSize":"day","exclusionSizeParam":""}' + f'&startDate={date_today}&endDate={date_1_week_back}'
+        + '&status=LOAD_FAILED'
+        + f'&database={database}'
+        + f'&schema={schema}'
+        + f'&pipe={pipe_name}&preset=PRESET_LAST_7_DAYS'
+    )
+    return process_row(
+        pipe_name,
+        history_type,
+        error_msg,
+        timestamp,
+        pipe_error_history_url,
+    )
 
 
 def process_row(

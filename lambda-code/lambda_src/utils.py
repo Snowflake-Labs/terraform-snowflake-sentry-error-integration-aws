@@ -1,6 +1,7 @@
-import re
 import json
 import logging
+import os
+import re
 from typing import Any, Dict, Text
 
 import sentry_sdk
@@ -9,6 +10,7 @@ from sentry_sdk.integrations.logging import LoggingIntegration, ignore_logger
 from .log import setup_logger
 
 ULILS_LOGGER = setup_logger('utils', logging.DEBUG)
+DEFAULT_SNOWFLAKE_ERROR_DSN = os.environ['DEFAULT_SNOWFLAKE_ERROR_DSN']
 
 
 def format_row_dict(s, ps):
@@ -70,3 +72,34 @@ def setup_sentry(dsn: str):
     )
     ignore_logger('utils')
     ignore_logger('console')
+
+
+def setup_dsn(event: Any) -> str:
+    """Return the first dsn
+
+    Args:
+        event (Any): _description_
+
+    Returns:
+        Optional[str]: _description_
+    """
+    dsn: str = DEFAULT_SNOWFLAKE_ERROR_DSN
+    if 'headers' not in event:
+        return dsn
+    headers = event['headers']
+    request_body = json.loads(event['body'])
+    data = request_body['data']
+    ULILS_LOGGER.debug(f'Sentry DSN: {dsn}')
+
+    for row_number, *args in data:
+        ULILS_LOGGER.debug(f'Processing row for dsn: {row_number}.')
+
+        process_row_params = {
+            k.replace('sf-custom-', '').replace('-', '_'): format_row_dict(v, args)
+            for k, v in headers.items()
+            if k.startswith('sf-custom-')
+        }
+
+        dsn = process_row_params.get('dsn')
+        break
+    return dsn

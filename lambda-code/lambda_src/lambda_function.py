@@ -1,52 +1,24 @@
+import json
 import logging
 import os
 import os.path
 import sys
 from base64 import b64encode
 from gzip import compress
-import json
-from typing import Any, Dict, List, Text, Optional
-from datetime import date, timedelta
-    
+from typing import Any, Dict, List, Text
+
 # pip install --target ./site-packages -r requirements.txt
 dir_path = os.path.dirname(os.path.realpath(__file__))
 sys.path.append(os.path.join(dir_path, 'site-packages'))
 
-from .sentry_driver import process_row
-from .utils import create_response, setup_sentry, format_row_dict
+from .sentry_driver import process_message, process_row
+from .utils import create_response, format_row_dict, setup_dsn, setup_sentry
 
 BATCH_ID_HEADER = 'sf-external-function-query-batch-id'
 DESTINATION_URI_HEADER = 'sf-custom-destination-uri'
 
 CONSOLE_LOGGER = logging.getLogger('console')
 SENTRY_DRIVER_LOGGER = logging.getLogger('sentry_driver')
-AWS_REGION = os.environ.get('AWS_REGION')
-DEFAULT_SNOWFLAKE_ERROR_DSN = os.environ['DEFAULT_SNOWFLAKE_ERROR_DSN']
-
-
-def get_dsn(headers: Any, data: List[Any]) -> Optional[str]:
-    """Return the first dsn
-
-    Args:
-        headers (Any): _description_
-        data (List[Any]): _description_
-
-    Returns:
-        Optional[str]: _description_
-    """
-    dsn = None
-    for row_number, *args in data:
-        CONSOLE_LOGGER.debug(f'Processing row: {row_number}.')
-
-        process_row_params = {
-            k.replace('sf-custom-', '').replace('-', '_'): format_row_dict(v, args)
-            for k, v in headers.items()
-            if k.startswith('sf-custom-')
-        }
-
-        dsn = process_row_params.get('dsn')
-        break
-    return dsn
 
 
 def sync_flow(event: Any, context: Any = None) -> Dict[Text, Any]:
@@ -89,37 +61,6 @@ def sync_flow(event: Any, context: Any = None) -> Dict[Text, Any]:
     return response
 
 
-def process_message(message: Any) -> Any:
-    CONSOLE_LOGGER.debug(f"From SNS: {message}")
-
-    pipe_full_name = message['pipeName']
-    database, schema_and_pipe = pipe_full_name.split(".", 1)
-    schema, pipe_name = schema_and_pipe.split(".", 1)
-
-    history_type = 'COPY'
-    error_msg = message['messages'][0]['firstError'] if message['messages'][0] else 'PIPE ERROR'
-    timestamp = message['timestamp']
-    account_name = message['accountName']
-    date_today = str(date.today())
-    date_1_week_back = str(date.today() - timedelta(days=7))
-
-    pipe_error_history_url: str = (
-        f'https://app.snowflake.com/{AWS_REGION}/{account_name}/compute/history/copies?'
-        + 'type=relative&relative={"tense":"past","value":7,"unit":"day","excludePartial":false,"exclusionSize":"day","exclusionSizeParam":""}' + f'&startDate={date_today}&endDate={date_1_week_back}'
-        + '&status=LOAD_FAILED'
-        + f'&database={database}'
-        + f'&schema={schema}'
-        + f'&pipe={pipe_name}&preset=PRESET_LAST_7_DAYS'
-    )
-    return process_row(
-        pipe_name,
-        history_type,
-        error_msg,
-        timestamp,
-        pipe_error_history_url,
-    )
-
-
 def lambda_handler(event: Any, context: Any) -> Dict[Text, Any]:
     """
     Implements the asynchronous function on AWS as described in the Snowflake docs here:
@@ -132,29 +73,12 @@ def lambda_handler(event: Any, context: Any) -> Dict[Text, Any]:
     Returns:
         Dict[Text, Any]: Returns the response body.
     """
-
-    dsn: str = DEFAULT_SNOWFLAKE_ERROR_DSN
-    if 'headers' in event:
-        headers = event['headers']
-        request_body = json.loads(event['body'])
-        CONSOLE_LOGGER.debug('lambda_handler() called.')
-        destination = headers.get(DESTINATION_URI_HEADER)
-        dsn = get_dsn(headers, request_body['data']) or dsn
-        CONSOLE_LOGGER.debug(f'Sentry DSN: {dsn}')
+    CONSOLE_LOGGER.debug('lambda_handler() called.')
+    dsn = setup_dsn(event)
 
     CONSOLE_LOGGER.debug(f'Setting up Sentry SDK for dsn: {dsn}.')
     setup_sentry(dsn)
 
     if 'Records' in event and len(event['Records']) > 0:
         return process_message(json.loads(event['Records'][0]['Sns']['Message']))
-
-    method = event.get('httpMethod')
-    # httpMethod exists implies caller is API Gateway
-    if method == 'POST' and destination:
-        CONSOLE_LOGGER.warning('Async flow is not supported.')
-    elif method == 'POST':
-        return sync_flow(event, context)
-    elif method == 'GET':
-        CONSOLE_LOGGER.warning('Async flow is not supported.')
-
-    return create_response(400, 'Unexpected Request.')
+    return sync_flow(event, context)
