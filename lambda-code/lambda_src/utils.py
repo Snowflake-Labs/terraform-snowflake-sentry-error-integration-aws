@@ -63,7 +63,7 @@ def setup_sentry(dsn: str):
         level=logging.ERROR,       # Capture info and above as breadcrumbs
         event_level=logging.ERROR  # Send errors as events
     )
-
+    ULILS_LOGGER.info(f'Setting up sentry with DSN: {dsn}')
     sentry_sdk.init(
         dsn=dsn,
         integrations=[
