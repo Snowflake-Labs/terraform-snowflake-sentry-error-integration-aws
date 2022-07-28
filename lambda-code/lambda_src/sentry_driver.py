@@ -80,7 +80,8 @@ def process_message(message: Any) -> Any:
 
     pipe_error_history_url: str = (
         f'https://app.snowflake.com/{AWS_REGION}/{account_name}/compute/history/copies?'
-        + 'type=relative&relative={"tense":"past","value":7,"unit":"day","excludePartial":false,"exclusionSize":"day","exclusionSizeParam":""}' + f'&startDate={date_today}&endDate={date_1_week_back}'
+        + 'type=relative&relative={"tense":"past","value":7,"unit":"day","excludePartial":false,"exclusionSize":"day","exclusionSizeParam":""}'
+        + f'&startDate={date_today}&endDate={date_1_week_back}'
         + '&status=LOAD_FAILED'
         + f'&database={database}'
         + f'&schema={schema}'
