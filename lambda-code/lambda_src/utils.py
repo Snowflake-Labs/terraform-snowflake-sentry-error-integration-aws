@@ -89,7 +89,7 @@ def setup_dsn(event: Any) -> str:
     headers = event['headers']
     request_body = json.loads(event['body'])
     data = request_body['data']
-    ULILS_LOGGER.debug(f'Sentry DSN: {dsn}')
+    ULILS_LOGGER.debug(f'Found DSN: {dsn}')
 
     for row_number, *args in data:
         ULILS_LOGGER.debug(f'Processing row for dsn: {row_number}.')
@@ -100,6 +100,4 @@ def setup_dsn(event: Any) -> str:
             if k.startswith('sf-custom-')
         }
 
-        dsn = process_row_params.get('dsn')
-        break
-    return dsn
+        return process_row_params.get('dsn', dsn)
