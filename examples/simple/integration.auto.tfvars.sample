@@ -1,0 +1,10 @@
+# Required
+prefix            = "my-prefix"
+env               = "dev"
+snowflake_account = "my-snowflake-account-id"
+
+# Snowflake
+aws_region                  = "us-west-2"
+database_name               = "SNOWALERT"
+schema_name                 = "MONITORING"
+default_snowflake_error_dsn = "https://sentry.com/sample_dsn"
