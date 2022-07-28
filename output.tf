@@ -27,3 +27,12 @@ output "sentry_integration_sns_iam_role" {
   description = "SNS IAM Role ARN."
   value       = aws_iam_role.sentry_sns_role.arn
 }
+
+output "send_to_sentry_full_function_name" {
+  description = "Fully qualified function name with database and schema."
+  value = join(".", [
+    var.database,
+    var.monitoring_schema,
+    snowflake_external_function.send_to_sentry.name,
+  ])
+}
