@@ -88,17 +88,24 @@ variable "security_monitoring_role" {
   default     = "ACCOUNTADMIN"
 }
 
-variable "database_name" {
+variable "database" {
   type        = string
-  description = "Database where the EF and tasks are created."
+  description = "Snowflake Database in which the snowflake db level objects are created."
   default     = "SNOWALERT"
 }
 
-variable "schema_name" {
+variable "monitoring_schema" {
   type        = string
-  description = "Schema where the EF and tasks are created."
+  description = "Snowflake Schema in which the snowflake db schema level objects are created."
   default     = "MONITORING"
 }
+
+variable "warehouse" {
+  type        = string
+  description = "Snowflake Warehouse used for any compute such as tasks and external functions."
+  default     = "SNOWALERT_WAREHOUSE"
+}
+
 
 data "aws_caller_identity" "current" {}
 data "aws_region" "current" {}

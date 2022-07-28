@@ -71,6 +71,24 @@ variable "arn_format" {
   default     = "aws"
 }
 
+variable "database" {
+  type        = string
+  description = "Snowflake Database in which the snowflake db level objects are created."
+  default     = "SNOWALERT"
+}
+
+variable "monitoring_schema" {
+  type        = string
+  description = "Snowflake Schema in which the snowflake db schema level objects are created."
+  default     = "MONITORING"
+}
+
+variable "warehouse" {
+  type        = string
+  description = "Snowflake Warehouse used for any compute such as tasks and external functions."
+  default     = "SNOWALERT_WAREHOUSE"
+}
+
 
 data "aws_caller_identity" "current" {}
 data "aws_region" "current" {}
