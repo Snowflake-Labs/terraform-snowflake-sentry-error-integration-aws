@@ -99,5 +99,5 @@ def setup_dsn(event: Any) -> str:
             for k, v in headers.items()
             if k.startswith('sf-custom-')
         }
-
-        return process_row_params.get('dsn', dsn)
+        dsn = process_row_params.get('dsn', dsn)
+    return dsn
