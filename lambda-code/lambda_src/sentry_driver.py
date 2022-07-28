@@ -31,7 +31,7 @@ def process_message(message: Any) -> Any:
     history_type = 'COPY'
     error_msg = message['messages'][0]['firstError'] if message['messages'][0] else 'PIPE ERROR'
     timestamp = message['timestamp']
-    account_name = message['accountName']
+    account_name = message['accountName'].lower()
     date_today = str(date.today())
     date_1_week_back = str(date.today() - timedelta(days=7))
 
