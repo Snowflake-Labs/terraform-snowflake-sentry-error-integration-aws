@@ -39,7 +39,7 @@ resource "snowflake_external_function" "send_to_sentry" {
   # Function headers
   header {
     name  = "dsn"
-    value = "{0}"
+    value = "'{0}'"
   }
 
   header {
