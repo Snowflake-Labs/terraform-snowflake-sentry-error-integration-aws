@@ -43,7 +43,7 @@ def lambda_handler(event, context):
         if type(sentry_secrets) is not dict:
             raise TypeError('Secrets response must be a dictionary.')
 
-        signing_secret: str = sentry_secrets.get('SIGNING_SECRET')
+        signing_secret: str = sentry_secrets.get('SENTRY_SLACK_SIGNING_SECRET')
 
         if not verify_request(
             slack_signature,
