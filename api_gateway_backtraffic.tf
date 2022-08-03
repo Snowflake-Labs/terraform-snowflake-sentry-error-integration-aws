@@ -16,23 +16,22 @@ module "sentry_backtraffic_api_gateway" {
     throttling_burst_limit   = 5000
     throttling_rate_limit    = 10000
   }
-}
 
-resource "aws_apigatewayv2_integration" "lambda_integration" {
-  api_id           = module.sentry_backtraffic_api_gateway.apigatewayv2_api_id
-  description      = "Integration with lambda proxy."
-  integration_type = "AWS_PROXY"
+  integrations = {
+    "ANY /" = {
+      lambda_arn             = aws_lambda_function.sentry_backtraffic_proxy_lambda.invoke_arn
+      payload_format_version = "2.0"
+      timeout_milliseconds   = 12000
+      connection_type        = "INTERNET"
+      integration_method     = "POST"
+      passthrough_behavior   = "WHEN_NO_MATCH"
+      integration_type       = "AWS_PROXY"
 
-  connection_type        = "INTERNET"
-  integration_method     = "POST"
-  integration_uri        = aws_lambda_function.sentry_backtraffic_proxy_lambda.invoke_arn
-  passthrough_behavior   = "WHEN_NO_MATCH"
-  payload_format_version = "2.0"
-  timeout_milliseconds   = 12000
-
-  tls_config = jsonencode({
-    server_name_to_verify = var.sentry_hostname
-  })
+      tls_config = jsonencode({
+        server_name_to_verify = var.sentry_hostname
+      })
+    }
+  }
 }
 
 resource "aws_apigatewayv2_route" "proxy_route" {
