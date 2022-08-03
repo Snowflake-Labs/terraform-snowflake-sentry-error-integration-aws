@@ -41,7 +41,7 @@ data "archive_file" "lambda_code_back_traffic" {
 }
 
 resource "aws_lambda_function" "sentry_backtraffic_proxy_lambda" {
-  function_name    = "${local.lambda_backtraffic_function_name}-lambda"
+  function_name    = local.lambda_backtraffic_function_name
   role             = aws_iam_role.sentry_backtraffic_proxy_lambda_role.arn
   handler          = "lambda_function.lambda_handler"
   memory_size      = "128"

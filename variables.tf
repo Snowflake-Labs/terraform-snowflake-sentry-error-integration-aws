@@ -122,7 +122,7 @@ locals {
 
 locals {
   lambda_function_name             = "${local.sentry_integration_prefix}-lambda"
-  lambda_backtraffic_function_name = "${local.sentry_integration_prefix}-backtraffic-lambda"
+  lambda_backtraffic_function_name = "${var.prefix}-sentry-backtraffic-lambda"
   api_gw_caller_role_name          = "${local.sentry_integration_prefix}-api-gateway-caller"
   api_gw_logger_role_name          = "${local.sentry_integration_prefix}-api-gateway-logger"
 
