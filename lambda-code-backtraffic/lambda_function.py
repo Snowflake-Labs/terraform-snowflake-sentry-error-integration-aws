@@ -15,6 +15,8 @@ JIRA_SECRET_ARN = os.environ.get('JIRA_SECRET_ARN')
 ALLOWED_SLACK_URLS: List = [
     'extensions/slack/event/',
     'extensions/slack/commands/',
+    'extensions/slack/action/',
+    'extensions/slack/options-load/',
 ]
 ALLOWED_JIRA_URLS: List = []
 
