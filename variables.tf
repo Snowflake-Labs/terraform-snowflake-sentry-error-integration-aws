@@ -129,4 +129,9 @@ locals {
   sentry_sns_role_name   = "${local.sentry_integration_prefix}-sns"
   sentry_sns_policy_name = "${local.sentry_integration_prefix}-sns-policy"
   sentry_sns_topic_name  = "${local.sentry_integration_prefix}-sns-topic"
+
+  backtraffic_lambda_secrets_arns = [
+    var.jira_secrets_arn,
+    var.slack_secrets_arn,
+  ]
 }

@@ -267,7 +267,7 @@ data "aws_iam_policy_document" "sentry_backtraffic_proxy_lambda_policy_doc" {
   statement {
     sid       = "AccessGetSecretVersions"
     effect    = "Allow"
-    resources = ["*"]
+    resources = local.backtraffic_lambda_secrets_arns
     actions = [
       "secretsmanager:GetResourcePolicy",
       "secretsmanager:GetSecretValue",
