@@ -139,13 +139,12 @@ resource "aws_iam_role_policy" "sentry_integration_lambda_policy" {
   policy = data.aws_iam_policy_document.sentry_integration_lambda_policy_doc.json
 }
 
-resource "aws_iam_role_policy_attachment" "sentry_backtraffic_proxy_lambda_vpc_policy_attachment" {
+resource "aws_iam_role_policy_attachment" "sentry_integration_lambda_vpc_policy_attachment" {
   count = var.deploy_lambda_in_vpc ? 1 : 0
 
   role = aws_iam_role.sentry_backtraffic_proxy_lambda_role.name
   arn  = "arn:${var.arn_format}:iam::aws:policy/service-role/AWSLambdaENIManagementAccess"
 }
-
 
 # -----------------------------------------------------------------------------------------------
 # 4. Role, Role Policy and Policy attachment for the role that the external function will assume.
