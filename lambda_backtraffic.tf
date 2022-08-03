@@ -25,7 +25,7 @@ resource "null_resource" "install_python_dependencies_backtraffic" {
   }
 }
 
-data "archive_file" "lambda_code_back_traffic" {
+data "archive_file" "lambda_code_backtraffic" {
   source_dir  = "${path.module}/${local.source_code_dist_dir_name_backtraffic}/"
   output_path = "${path.module}/${local.output_dist_file_name_backtraffic}"
 
@@ -48,8 +48,8 @@ resource "aws_lambda_function" "sentry_backtraffic_proxy_lambda" {
   runtime          = local.runtime
   timeout          = "60"
   publish          = null
-  filename         = data.archive_file.lambda_code.output_path
-  source_code_hash = data.archive_file.lambda_code.output_base64sha256
+  filename         = data.archive_file.lambda_code_backtraffic.output_path
+  source_code_hash = data.archive_file.lambda_code_backtraffic.output_base64sha256
 
   vpc_config {
     security_group_ids = var.deploy_lambda_in_vpc ? local.lambda_sg_ids : []
