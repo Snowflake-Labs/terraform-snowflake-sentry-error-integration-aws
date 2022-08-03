@@ -139,18 +139,13 @@ resource "aws_iam_role_policy" "sentry_integration_lambda_policy" {
   policy = data.aws_iam_policy_document.sentry_integration_lambda_policy_doc.json
 }
 
-data "aws_iam_policy" "sentry_integration_lambda_vpc_policy" {
-  count = var.deploy_lambda_in_vpc ? 1 : 0
-  arn   = "arn:${var.arn_format}:iam::aws:policy/service-role/AWSLambdaENIManagementAccess"
-}
-
-resource "aws_iam_policy_attachment" "sentry_integration_lambda_vpc_policy_attachment" {
+resource "aws_iam_role_policy_attachment" "sentry_backtraffic_proxy_lambda_vpc_policy_attachment" {
   count = var.deploy_lambda_in_vpc ? 1 : 0
 
-  name       = "${local.sentry_integration_prefix}-lambda-vpc-policy-attachment"
-  roles      = [aws_iam_role.sentry_integration_lambda_assume_role.name]
-  policy_arn = data.aws_iam_policy.sentry_integration_lambda_vpc_policy[0].arn
+  role = aws_iam_role.sentry_backtraffic_proxy_lambda_role.name
+  arn  = "arn:${var.arn_format}:iam::aws:policy/service-role/AWSLambdaENIManagementAccess"
 }
+
 
 # -----------------------------------------------------------------------------------------------
 # 4. Role, Role Policy and Policy attachment for the role that the external function will assume.
@@ -256,7 +251,7 @@ data "aws_iam_policy_document" "sentry_backtraffic_proxy_lambda_policy_doc" {
   statement {
     sid       = "WriteCloudWatchLogs"
     effect    = "Allow"
-    resources = ["arn:aws:logs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:log-group:/aws/lambda/${local.lambda_backtraffic_function_name}:*"]
+    resources = ["arn:${var.arn_format}:logs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:log-group:/aws/lambda/${local.lambda_backtraffic_function_name}:*"]
 
     actions = [
       "logs:CreateLogStream",
@@ -293,12 +288,9 @@ resource "aws_iam_role_policy" "sentry_backtraffic_proxy_lambda_policy" {
   policy = data.aws_iam_policy_document.sentry_backtraffic_proxy_lambda_policy_doc.json
 }
 
-data "aws_iam_policy" "sentry_backtraffic_proxy_lambda_vpc_policy" {
-  arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaENIManagementAccess"
-}
+resource "aws_iam_role_policy_attachment" "sentry_backtraffic_proxy_lambda_vpc_policy_attachment" {
+  count = var.deploy_lambda_in_vpc ? 1 : 0
 
-resource "aws_iam_policy_attachment" "sentry_backtraffic_proxy_lambda_vpc_policy_attachment" {
-  name       = "${local.lambda_backtraffic_function_name}-vpc-policy-attachment"
-  roles      = [aws_iam_role.sentry_backtraffic_proxy_lambda_role.name]
-  policy_arn = data.aws_iam_policy.sentry_backtraffic_proxy_lambda_vpc_policy.arn
+  role       = aws_iam_role.sentry_backtraffic_proxy_lambda_role.name
+  policy_arn = "arn:${var.arn_format}:iam::aws:policy/service-role/AWSLambdaENIManagementAccess"
 }
