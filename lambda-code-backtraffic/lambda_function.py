@@ -13,10 +13,10 @@ SLACK_SECRET_ARN = os.environ.get('SLACK_SECRET_ARN')
 JIRA_SECRET_ARN = os.environ.get('JIRA_SECRET_ARN')
 
 ALLOWED_SLACK_URLS: List = [
-    'extensions/slack/event/',
-    'extensions/slack/commands/',
-    'extensions/slack/action/',
-    'extensions/slack/options-load/',
+    '/extensions/slack/event/',
+    '/extensions/slack/commands/',
+    '/extensions/slack/action/',
+    '/extensions/slack/options-load/',
 ]
 ALLOWED_JIRA_URLS: List = []
 
@@ -43,7 +43,7 @@ def lambda_handler(event, context):
             LOG.warning('Unsupported path.')
             return error_response(404)
 
-        url = f'https://{SENTRY_HOSTNAME}/{raw_path}'
+        url = f'https://{SENTRY_HOSTNAME}{raw_path}'
         LOG.info(f'Using Sentry URL: {url}')
 
         sentry_secrets: Dict = json.loads(get_secrets(SLACK_SECRET_ARN))
