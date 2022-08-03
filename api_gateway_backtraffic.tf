@@ -30,9 +30,9 @@ resource "aws_apigatewayv2_integration" "lambda_integration" {
   payload_format_version = "2.0"
   timeout_milliseconds   = 12000
 
-  tls_config {
+  tls_config = jsonencode({
     server_name_to_verify = var.sentry_hostname
-  }
+  })
 }
 
 resource "aws_apigatewayv2_route" "proxy_route" {
