@@ -1,0 +1,9 @@
+-r requirements.txt
+black
+boto3
+mypy
+pylint
+pytest
+pytest-cov
+pytest-mock
+responses

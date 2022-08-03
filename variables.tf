@@ -89,6 +89,21 @@ variable "warehouse" {
   default     = "SNOWALERT_WAREHOUSE"
 }
 
+variable "slack_secrets_arn" {
+  description = "The ARN for the secrets user by the sentry slack app."
+  type        = string
+}
+
+variable "jira_secrets_arn" {
+  description = "The ARN for the secrets user by the sentry slack app."
+  type        = string
+}
+
+variable "sentry_hostname" {
+  description = "Hostname of the Sentry instance."
+  type        = string
+}
+
 
 data "aws_caller_identity" "current" {}
 data "aws_region" "current" {}
@@ -106,9 +121,10 @@ locals {
 }
 
 locals {
-  lambda_function_name    = "${local.sentry_integration_prefix}-lambda"
-  api_gw_caller_role_name = "${local.sentry_integration_prefix}-api-gateway-caller"
-  api_gw_logger_role_name = "${local.sentry_integration_prefix}-api-gateway-logger"
+  lambda_function_name             = "${local.sentry_integration_prefix}-lambda"
+  lambda_backtraffic_function_name = "${local.sentry_integration_prefix}-backtraffic-lambda"
+  api_gw_caller_role_name          = "${local.sentry_integration_prefix}-api-gateway-caller"
+  api_gw_logger_role_name          = "${local.sentry_integration_prefix}-api-gateway-logger"
 
   sentry_sns_role_name   = "${local.sentry_integration_prefix}-sns"
   sentry_sns_policy_name = "${local.sentry_integration_prefix}-sns-policy"

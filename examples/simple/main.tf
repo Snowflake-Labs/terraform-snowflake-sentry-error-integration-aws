@@ -21,6 +21,10 @@ module "sentry_integration" {
   snowflake_integration_user_roles = var.snowflake_integration_user_roles
   default_snowflake_error_dsn      = var.default_snowflake_error_dsn
 
+  jira_secrets_arn  = var.jira_secrets_arn
+  slack_secrets_arn = var.slack_secrets_arn
+  sentry_hostname   = var.sentry_hostname
+
   providers = {
     snowflake.security_api_integration_role          = snowflake.security_api_integration_role
     snowflake.security_notification_integration_role = snowflake.security_notification_integration_role
