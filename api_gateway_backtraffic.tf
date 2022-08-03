@@ -18,7 +18,7 @@ module "sentry_backtraffic_api_gateway" {
   }
 
   integrations = {
-    "ANY /" = {
+    "ANY /{proxy+}" = {
       lambda_arn             = aws_lambda_function.sentry_backtraffic_proxy_lambda.invoke_arn
       payload_format_version = "2.0"
       timeout_milliseconds   = 12000
@@ -32,12 +32,6 @@ module "sentry_backtraffic_api_gateway" {
       })
     }
   }
-}
-
-resource "aws_apigatewayv2_route" "proxy_route" {
-  api_id    = module.sentry_backtraffic_api_gateway.apigatewayv2_api_id
-  route_key = "ANY /{proxy+}"
-  target    = "integrations/${aws_apigatewayv2_integration.lambda_integration.id}"
 }
 
 resource "aws_lambda_permission" "allow_api_gw" {
