@@ -58,10 +58,10 @@ resource "aws_lambda_function" "sentry_backtraffic_proxy_lambda" {
 
   environment {
     variables = {
-      LOGGING_LEVEL     = var.env == "prod" ? "INFO" : "DEBUG"
-      SENTRY_HOSTNAME   = var.sentry_hostname
-      SLACK_SECRET_NAME = var.slack_secrets_arn
-      JIRA_SECRET_ARN   = var.jira_secrets_arn
+      LOGGING_LEVEL    = var.env == "prod" ? "INFO" : "DEBUG"
+      SENTRY_HOSTNAME  = var.sentry_hostname
+      SLACK_SECRET_ARN = var.slack_secrets_arn
+      JIRA_SECRET_ARN  = var.jira_secrets_arn
     }
   }
 
