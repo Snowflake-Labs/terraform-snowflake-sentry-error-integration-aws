@@ -36,3 +36,8 @@ output "send_to_sentry_full_function_name" {
     snowflake_external_function.send_to_sentry.name,
   ])
 }
+
+output "sentry_backtraffic_api_gateway_url" {
+  description = "API Gateway URL to use for 3rdparty serives that need to access Sentry webhooks."
+  value       = module.sentry_backtraffic_api_gateway.apigatewayv2_api_api_endpoint
+}

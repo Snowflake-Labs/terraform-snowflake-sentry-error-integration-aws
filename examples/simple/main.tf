@@ -19,7 +19,11 @@ module "sentry_integration" {
   monitoring_schema                = var.monitoring_schema
   warehouse                        = var.warehouse
   snowflake_integration_user_roles = var.snowflake_integration_user_roles
-  default_snowflake_error_dsn      = var.default_snowflake_error_dsn
+
+  default_snowflake_error_dsn = var.default_snowflake_error_dsn
+  sentry_hostname             = var.sentry_hostname
+  jira_secrets_arn            = var.jira_secrets_arn
+  slack_secrets_arn           = var.slack_secrets_arn
 
   providers = {
     snowflake.security_api_integration_role          = snowflake.security_api_integration_role

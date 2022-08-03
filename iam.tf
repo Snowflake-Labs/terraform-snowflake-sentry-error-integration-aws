@@ -139,17 +139,11 @@ resource "aws_iam_role_policy" "sentry_integration_lambda_policy" {
   policy = data.aws_iam_policy_document.sentry_integration_lambda_policy_doc.json
 }
 
-data "aws_iam_policy" "sentry_integration_lambda_vpc_policy" {
-  count = var.deploy_lambda_in_vpc ? 1 : 0
-  arn   = "arn:${var.arn_format}:iam::aws:policy/service-role/AWSLambdaENIManagementAccess"
-}
-
-resource "aws_iam_policy_attachment" "sentry_integration_lambda_vpc_policy_attachment" {
+resource "aws_iam_role_policy_attachment" "sentry_integration_lambda_vpc_policy_attachment" {
   count = var.deploy_lambda_in_vpc ? 1 : 0
 
-  name       = "${local.sentry_integration_prefix}-lambda-vpc-policy-attachment"
-  roles      = [aws_iam_role.sentry_integration_lambda_assume_role.name]
-  policy_arn = data.aws_iam_policy.sentry_integration_lambda_vpc_policy[0].arn
+  role       = aws_iam_role.sentry_integration_lambda_assume_role.name
+  policy_arn = "arn:${var.arn_format}:iam::aws:policy/service-role/AWSLambdaENIManagementAccess"
 }
 
 # -----------------------------------------------------------------------------------------------
@@ -194,7 +188,9 @@ resource "aws_iam_role_policy" "sentry_sns_role_policy" {
   })
 }
 
-# 5. SNS Topic Policy, SNS Topic Policy Attachment
+# -------------------------------------------------
+# 5. SNS Topic Policy, SNS Topic Policy Attachment.
+# -------------------------------------------------
 data "aws_iam_policy_document" "sentry_integration_sns_topic_policy_doc" {
   policy_id = local.sentry_sns_policy_name
 
@@ -227,4 +223,73 @@ data "aws_iam_policy_document" "sentry_integration_sns_topic_policy_doc" {
 resource "aws_sns_topic_policy" "sentry_integration_sns_topic_policy" {
   arn    = aws_sns_topic.sentry_integration_sns.arn
   policy = data.aws_iam_policy_document.sentry_integration_sns_topic_policy_doc.json
+}
+
+# -----------------------------------------------------------------------------------
+# 6. Backtraffic Lambda Assume Role, Assume Role Policy and other Permissions Policy.
+# -----------------------------------------------------------------------------------
+data "aws_iam_policy_document" "sentry_backtraffic_proxy_lambda_role_policy_doc" {
+  statement {
+    effect  = "Allow"
+    actions = ["sts:AssumeRole"]
+
+    principals {
+      type        = "Service"
+      identifiers = ["lambda.amazonaws.com"]
+    }
+  }
+}
+
+resource "aws_iam_role" "sentry_backtraffic_proxy_lambda_role" {
+  name               = "${local.lambda_backtraffic_function_name}-role"
+  assume_role_policy = data.aws_iam_policy_document.sentry_backtraffic_proxy_lambda_role_policy_doc.json
+}
+
+data "aws_iam_policy_document" "sentry_backtraffic_proxy_lambda_policy_doc" {
+  # Write logs to cloudwatch
+  statement {
+    sid       = "WriteCloudWatchLogs"
+    effect    = "Allow"
+    resources = ["arn:${var.arn_format}:logs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:log-group:/aws/lambda/${local.lambda_backtraffic_function_name}:*"]
+
+    actions = [
+      "logs:CreateLogStream",
+      "logs:PutLogEvents",
+    ]
+  }
+
+  statement {
+    sid       = "AccessGetSecretVersions"
+    effect    = "Allow"
+    resources = local.backtraffic_lambda_secrets_arns
+    actions = [
+      "secretsmanager:GetResourcePolicy",
+      "secretsmanager:GetSecretValue",
+      "secretsmanager:DescribeSecret",
+      "secretsmanager:ListSecretVersionIds",
+      "secretsmanager:ListSecrets"
+    ]
+  }
+
+  statement {
+    sid       = "ListSecrets"
+    effect    = "Allow"
+    resources = ["*"]
+    actions = [
+      "secretsmanager:ListSecrets"
+    ]
+  }
+}
+
+resource "aws_iam_role_policy" "sentry_backtraffic_proxy_lambda_policy" {
+  name   = "${local.lambda_backtraffic_function_name}-role-policy"
+  role   = aws_iam_role.sentry_backtraffic_proxy_lambda_role.id
+  policy = data.aws_iam_policy_document.sentry_backtraffic_proxy_lambda_policy_doc.json
+}
+
+resource "aws_iam_role_policy_attachment" "sentry_backtraffic_proxy_lambda_vpc_policy_attachment" {
+  count = var.deploy_lambda_in_vpc ? 1 : 0
+
+  role       = aws_iam_role.sentry_backtraffic_proxy_lambda_role.name
+  policy_arn = "arn:${var.arn_format}:iam::aws:policy/service-role/AWSLambdaENIManagementAccess"
 }
