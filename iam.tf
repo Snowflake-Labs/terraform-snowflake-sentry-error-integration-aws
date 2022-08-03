@@ -142,7 +142,7 @@ resource "aws_iam_role_policy" "sentry_integration_lambda_policy" {
 resource "aws_iam_role_policy_attachment" "sentry_integration_lambda_vpc_policy_attachment" {
   count = var.deploy_lambda_in_vpc ? 1 : 0
 
-  role       = aws_iam_role.sentry_backtraffic_proxy_lambda_role.name
+  role       = aws_iam_role.sentry_integration_lambda_assume_role.name
   policy_arn = "arn:${var.arn_format}:iam::aws:policy/service-role/AWSLambdaENIManagementAccess"
 }
 
