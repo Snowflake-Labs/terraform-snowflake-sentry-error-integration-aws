@@ -25,11 +25,7 @@ def lambda_handler(event, context):
     headers: Dict = event['headers']
     body: Dict = event['body']
     raw_path = event.get('rawPath')
-    print(headers)
-    print()
-    print(body)
-    print()
-    print(raw_path)
+    LOG.info(f'rawPath is {raw_path}.')
 
     if event['isBase64Encoded']:
         body: str = extract_from_b64(body)
