@@ -81,5 +81,6 @@ def lambda_handler(event, context):
     except JSONDecodeError:
         body = r.text
 
+    print(r.headers)
     return {'statusCode': r.status_code, 'body': body}
 
