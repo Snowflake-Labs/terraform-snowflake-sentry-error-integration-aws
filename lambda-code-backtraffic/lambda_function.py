@@ -77,10 +77,12 @@ def lambda_handler(event, context):
     LOG.info('Received response.')
 
     try:
-        body = r.content
+        body = r.content.decode("utf-8")
     except JSONDecodeError:
         body = r.text
 
-    print(r.headers)
-    return {'statusCode': r.status_code, 'body': body}
-
+    return {
+        'statusCode': r.status_code, 
+        'headers': {'Content-Type': 'application/json'},
+        'body': body,
+    }
