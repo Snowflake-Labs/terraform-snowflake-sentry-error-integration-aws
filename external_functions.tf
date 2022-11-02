@@ -1,5 +1,5 @@
 resource "snowflake_external_function" "send_to_sentry" {
-  provider = snowflake.security_monitoring_role
+  provider = snowflake.monitoring_role
 
   database = "SNOWALERT"
   schema   = "MONITORING"

@@ -26,9 +26,9 @@ module "sentry_integration" {
   slack_secrets_arn           = var.slack_secrets_arn
 
   providers = {
-    snowflake.security_api_integration_role          = snowflake.security_api_integration_role
-    snowflake.security_notification_integration_role = snowflake.security_notification_integration_role
-    snowflake.security_monitoring_role               = snowflake.security_monitoring_role
-    aws                                              = aws
+    snowflake.api_integration_role          = snowflake.api_integration_role
+    snowflake.notification_integration_role = snowflake.notification_integration_role
+    snowflake.monitoring_role               = snowflake.monitoring_role
+    aws                                     = aws
   }
 }

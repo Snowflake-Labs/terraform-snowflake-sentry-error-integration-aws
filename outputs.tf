@@ -10,7 +10,17 @@ output "api_integration_name" {
 
 output "notification_integration_name" {
   description = "Name of Storage integration"
-  value       = snowflake_notification_integration.pipe_errors_integration.name
+  value       = module.sentry_error_integration.notification_integration_name
+}
+
+output "notification_integration_sns_topic_arn" {
+  description = "Name of Storage integration"
+  value       = module.sentry_error_integration.notification_integration_sns_topic_arn
+}
+
+output "notification_integration_sns_role_arn" {
+  description = "Name of Storage integration"
+  value       = module.sentry_error_integration.notification_integration_sns_role_arn
 }
 
 output "sns_topic_arn" {

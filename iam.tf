@@ -160,12 +160,12 @@ resource "aws_iam_role" "sentry_sns_role" {
         Action = "sts:AssumeRole"
         Condition = {
           StringEquals = {
-            "sts:ExternalId" = snowflake_notification_integration.pipe_errors_integration.aws_sns_external_id
+            "sts:ExternalId" = module.sentry_error_integration.notification_integration_external_id
           }
         }
         Effect = "Allow"
         Principal = {
-          AWS = snowflake_notification_integration.pipe_errors_integration.aws_sns_iam_user_arn
+          AWS = module.sentry_error_integration.notification_integration_user_arn
         }
       }
     ]

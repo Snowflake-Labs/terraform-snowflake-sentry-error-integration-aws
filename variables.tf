@@ -36,7 +36,7 @@ variable "env" {
 variable "snowflake_integration_user_roles" {
   type = list(string)
   default = [
-    "SECURITY_MONITORING_RL"
+    "MONITORING_RL"
   ]
   description = "List of roles to which Sentry infra will GRANT USAGE ON INTEGRATION perms."
 }

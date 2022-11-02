@@ -76,13 +76,13 @@ variable "arn_format" {
   default     = "aws"
 }
 
-variable "security_integration_role" {
+variable "integration_role" {
   type        = string
   description = "Role for creating database level or account level objects."
   default     = "ACCOUNTADMIN"
 }
 
-variable "security_monitoring_role" {
+variable "monitoring_role" {
   type        = string
   description = "Role for creating schema level objects."
   default     = "ACCOUNTADMIN"

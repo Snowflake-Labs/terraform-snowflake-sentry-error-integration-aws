@@ -28,12 +28,12 @@ output "sentry_integration_sns_iam_role" {
   value       = module.sentry_integration.sentry_integration_sns_iam_role
 }
 
-output "sentry_integration_sns_iam_role" {
-  description = "SNS IAM Role ARN."
-  value       = module.sentry_integration.sentry_integration_sns_iam_role
+output "send_to_sentry_full_function_name" {
+  description = "Fully qualified function name with database and schema."
+  value       = module.sentry_integration.send_to_sentry_full_function_name
 }
 
 output "sentry_backtraffic_api_gateway_url" {
   description = "API Gateway URL to use for 3rdparty serives that need to access Sentry webhooks."
-  value       = module.sentry_backtraffic_api_gateway.apigatewayv2_api_api_endpoint
+  value       = module.sentry_integration.sentry_backtraffic_api_gateway_url
 }

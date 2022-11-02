@@ -6,22 +6,22 @@
 # export SNOWFLAKE_PRIVATE_KEY_PASSPHRASE="snowflake_passphrase"
 
 provider "snowflake" {
-  alias = "security_api_integration_role"
+  alias = "api_integration_role"
 
   account = var.snowflake_account
-  role    = var.security_integration_role
+  role    = var.integration_role
 }
 
 provider "snowflake" {
-  alias = "security_notification_integration_role"
+  alias = "notification_integration_role"
 
   account = var.snowflake_account
-  role    = var.security_integration_role
+  role    = var.integration_role
 }
 
 provider "snowflake" {
-  alias = "security_monitoring_role"
+  alias = "monitoring_role"
 
   account = var.snowflake_account
-  role    = var.security_monitoring_role
+  role    = var.monitoring_role
 }

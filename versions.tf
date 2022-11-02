@@ -4,17 +4,17 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = ">= 4.20.1"
+      version = "~> 4.37.0"
     }
 
     snowflake = {
       source  = "Snowflake-Labs/snowflake"
-      version = ">= 0.40.0"
+      version = "0.49.0"
 
       configuration_aliases = [
-        snowflake.security_api_integration_role,
-        snowflake.security_notification_integration_role,
-        snowflake.security_monitoring_role,
+        snowflake.api_integration_role,
+        snowflake.notification_integration_role,
+        snowflake.monitoring_role,
       ]
     }
   }
