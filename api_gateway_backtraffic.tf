@@ -1,7 +1,7 @@
 module "sentry_backtraffic_api_gateway" {
   source = "terraform-aws-modules/apigateway-v2/aws"
 
-  name          = "$local.sentry_integration_prefix}-backtraffic"
+  name          = "${local.sentry_integration_prefix}-backtraffic"
   description   = "HTTPS API Gateway for slack to tines traffic."
   protocol_type = "HTTP"
 
