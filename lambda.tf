@@ -9,10 +9,10 @@ locals {
 }
 
 resource "null_resource" "install_python_dependencies" {
-  # If this always runs archive_file is fine, else we have an issue during refresh:
-  # https://github.com/hashicorp/terraform-provider-archive/issues/78
+  # # If this always runs archive_file is fine, else we have an issue during refresh:
+  # # https://github.com/hashicorp/terraform-provider-archive/issues/78
   triggers = {
-    always_run = timestamp()
+    always_run = "${timestamp()}"
   }
 
   provisioner "local-exec" {
@@ -76,26 +76,28 @@ resource "aws_lambda_function" "sentry_integration_lambda" {
   ]
 }
 
-resource "null_resource" "clean_up_pip_files" {
-  # If this always runs archive_file is fine, else we have an issue during refresh:
-  # https://github.com/hashicorp/terraform-provider-archive/issues/78
-  triggers = {
-    always_run = timestamp()
-  }
+# resource "null_resource" "clean_up_pip_files" {
+#   # If this always runs archive_file is fine, else we have an issue during refresh:
+#   # https://github.com/hashicorp/terraform-provider-archive/issues/78
+#   triggers = {
+#     always_run = timestamp()
+#   }
 
-  provisioner "local-exec" {
-    command = "bash ${path.module}/scripts/clean_dist_pkg.sh"
+#   provisioner "local-exec" {
+#     command = "bash ${path.module}/scripts/clean_dist_pkg.sh"
 
-    environment = {
-      source_code_dist_dir_path = local.source_code_dist_dir_path
-      path_module               = path.module
-      path_cwd                  = path.cwd
-      dist_archive_file_name    = local.output_dist_file_name
-    }
-  }
+#     environment = {
+#       source_code_dist_dir_path = local.source_code_dist_dir_path
+#       path_module               = path.module
+#       path_cwd                  = path.cwd
+#       dist_archive_file_name    = local.output_dist_file_name
+#     }
+#   }
 
-  depends_on = [aws_lambda_function.sentry_integration_lambda]
-}
+#   depends_on = [
+#     aws_lambda_function.sentry_integration_lambda,
+#   ]
+# }
 
 resource "aws_lambda_permission" "api_gateway" {
   statement_id  = "AllowAPIGatewayToInvoke"

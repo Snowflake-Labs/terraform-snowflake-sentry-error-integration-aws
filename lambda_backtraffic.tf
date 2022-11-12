@@ -68,26 +68,26 @@ resource "aws_lambda_function" "sentry_backtraffic_proxy_lambda" {
   depends_on = [aws_cloudwatch_log_group.sentry_backtraffic_proxy_lambda_log_group]
 }
 
-resource "null_resource" "clean_up_pip_files_backtraffic" {
-  # If this always runs archive_file is fine, else we have an issue during refresh:
-  # https://github.com/hashicorp/terraform-provider-archive/issues/78
-  triggers = {
-    always_run = timestamp()
-  }
+# resource "null_resource" "clean_up_pip_files_backtraffic" {
+#   # If this always runs archive_file is fine, else we have an issue during refresh:
+#   # https://github.com/hashicorp/terraform-provider-archive/issues/78
+#   triggers = {
+#     always_run = timestamp()
+#   }
 
-  provisioner "local-exec" {
-    command = "bash ${path.module}/scripts/clean_dist_pkg_backtraffic.sh"
+#   provisioner "local-exec" {
+#     command = "bash ${path.module}/scripts/clean_dist_pkg_backtraffic.sh"
 
-    environment = {
-      source_code_dist_dir_name = local.source_code_dist_dir_name_backtraffic
-      path_module               = path.module
-      path_cwd                  = path.cwd
-      dist_archive_file_name    = local.output_dist_file_name_backtraffic
-    }
-  }
+#     environment = {
+#       source_code_dist_dir_name = local.source_code_dist_dir_name_backtraffic
+#       path_module               = path.module
+#       path_cwd                  = path.cwd
+#       dist_archive_file_name    = local.output_dist_file_name_backtraffic
+#     }
+#   }
 
-  depends_on = [aws_lambda_function.sentry_backtraffic_proxy_lambda]
-}
+#   depends_on = [aws_lambda_function.sentry_backtraffic_proxy_lambda]
+# }
 
 resource "aws_lambda_permission" "api_gateway_backtraffic" {
   statement_id  = "AllowAPIGatewayToInvoke"
