@@ -4,7 +4,10 @@ env               = "dev"
 snowflake_account = "my-snowflake-account-id"
 
 # Snowflake
-aws_region                  = "us-west-2"
-database_name               = "SNOWALERT"
-schema_name                 = "MONITORING"
-default_snowflake_error_dsn = "https://sentry.com/sample_dsn"
+aws_region                         = "us-west-2"
+database_name                      = "SNOWALERT"
+schema_name                        = "MONITORING"
+default_snowflake_error_dsn        = "https://sentry.com/sample_dsn"
+send_to_sentry_function_user_roles = [
+    "INGEST_RL", "ALERTING_RL",
+]
