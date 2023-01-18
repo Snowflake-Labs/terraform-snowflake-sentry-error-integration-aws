@@ -14,6 +14,7 @@ requirements_file_path=$path_cwd/$path_module/$source_code_repo_dir_path/require
 if [ -f "$requirements_file_path" ]; then
   echo "Installing dependencies..."
   echo "requirements.txt file exists..."
+  which pip || eval 'echo "Error: pip command not found" ; exit 1'
   pip install -r $requirements_file_path --target $install_path_dir --upgrade
 else
   echo "Error: $requirements_file_path does not exist!"
