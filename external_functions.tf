@@ -8,32 +8,32 @@ resource "snowflake_external_function" "send_to_sentry" {
   # Function arguments
   arg {
     name = "DSN"
-    type = "VARCHAR(16777216)"
+    type = "VARCHAR"
   }
 
   arg {
     name = "NAME"
-    type = "VARCHAR(16777216)"
+    type = "VARCHAR"
   }
 
   arg {
     name = "HISTORY_TYPE"
-    type = "VARCHAR(16777216)"
+    type = "VARCHAR"
   }
 
   arg {
     name = "ERROR"
-    type = "VARCHAR(16777216)"
+    type = "VARCHAR"
   }
 
   arg {
     name = "TS"
-    type = "VARCHAR(16777216)"
+    type = "VARCHAR"
   }
 
   arg {
     name = "HISTORY_URL"
-    type = "VARCHAR(16777216)"
+    type = "VARCHAR"
   }
 
   # Function headers
