@@ -30,6 +30,8 @@ override.tf.json
 # Include tfplan files to ignore the plan output of command: terraform plan -out=tfplan
 # example: *tfplan*
 **/lambda-code-dist/*
+!**/lambda-code-dist/.placeholder
 **/lambda-code-dist-backtraffic/*
+!**/lambda-code-dist-backtraffic/.placeholder
 lambda-code-backtraffic.zip
 lambda-code.zip

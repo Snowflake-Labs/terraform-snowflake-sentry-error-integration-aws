@@ -7,7 +7,11 @@ pwd
 echo "Source code path is $source_code_upload_dir"
 install_path_dir=./$source_code_dist_dir_path/$source_code_upload_dir/site-packages/
 echo "Install path dir is $install_path_dir"
-mkdir -p $install_path_dir
+
+if [ ! -d $install_path_dir ]; then
+  mkdir -p $install_path_dir
+fi
+
 requirements_file_path=$path_cwd/$path_module/$source_code_repo_dir_path/requirements.txt
 
 # Installing python dependencies...
