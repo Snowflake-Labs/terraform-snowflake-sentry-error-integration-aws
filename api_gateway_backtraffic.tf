@@ -27,9 +27,9 @@ module "sentry_backtraffic_api_gateway" {
       passthrough_behavior   = "WHEN_NO_MATCH"
       integration_type       = "AWS_PROXY"
 
-      tls_config = jsonencode({
-        server_name_to_verify = var.sentry_hostname
-      })
+      #tls_config = jsonencode({
+      #  server_name_to_verify = var.sentry_hostname
+      #})
     }
   }
 }
