@@ -42,6 +42,7 @@ data "archive_file" "lambda_code_backtraffic" {
     ".mypy_cache",
     ".pytest_cache",
     "venv",
+    ".placeholder",
   ]
 
   depends_on = [null_resource.install_python_dependencies_backtraffic]
@@ -56,7 +57,7 @@ resource "aws_lambda_function" "sentry_backtraffic_proxy_lambda" {
   timeout          = "60"
   publish          = null
   filename         = data.archive_file.lambda_code_backtraffic.output_path
-  source_code_hash = data.archive_file.lambda_code_backtraffic.output_base64sha256
+  source_code_hash = data.archive_file.lambda_code_backtraffic.output_size > 500 ? data.archive_file.lambda_code_backtraffic.output_base64sha256 : null
 
   vpc_config {
     security_group_ids = var.deploy_lambda_in_vpc ? local.lambda_sg_ids : []
