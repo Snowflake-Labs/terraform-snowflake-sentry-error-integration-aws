@@ -6,7 +6,11 @@ cd $path_module
 pwd
 echo "Source code path is $source_code_path"
 source_code_dist_dir=./$source_code_dist_dir_name/
-mkdir $source_code_dist_dir
+
+if [ ! -d $install_path_dir ]; then
+  mkdir $source_code_dist_dir
+fi
+
 requirements_file_path=$path_cwd/$path_module/$source_code_path/requirements.txt
 
 # Installing python dependencies...
