@@ -56,7 +56,7 @@ resource "aws_lambda_function" "sentry_backtraffic_proxy_lambda" {
   timeout          = "60"
   publish          = null
   filename         = data.archive_file.lambda_code_backtraffic.output_path
-  source_code_hash = base64sha256(local.lambda_backtraffic_file_hashes)
+  source_code_hash = data.archive_file.lambda_code_backtraffic.output_base64sha256
 
   vpc_config {
     security_group_ids = var.deploy_lambda_in_vpc ? local.lambda_sg_ids : []
@@ -72,10 +72,7 @@ resource "aws_lambda_function" "sentry_backtraffic_proxy_lambda" {
     }
   }
 
-  depends_on = [
-    aws_cloudwatch_log_group.sentry_backtraffic_proxy_lambda_log_group,
-    data.archive_file.lambda_code_backtraffic
-  ]
+  depends_on = [aws_cloudwatch_log_group.sentry_backtraffic_proxy_lambda_log_group]
 }
 
 # resource "null_resource" "clean_up_pip_files_backtraffic" {

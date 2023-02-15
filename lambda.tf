@@ -64,7 +64,7 @@ resource "aws_lambda_function" "sentry_integration_lambda" {
   publish     = null
 
   filename         = data.archive_file.lambda_code.output_path
-  source_code_hash = base64sha256(local.lambda_file_hashes)
+  source_code_hash = data.archive_file.lambda_code.output_base64sha256
 
   vpc_config {
     security_group_ids = var.deploy_lambda_in_vpc ? local.lambda_sg_ids : []
@@ -79,8 +79,7 @@ resource "aws_lambda_function" "sentry_integration_lambda" {
   }
 
   depends_on = [
-    aws_cloudwatch_log_group.sentry_integration_lambda_log_group,
-    data.archive_file.lambda_code
+    aws_cloudwatch_log_group.sentry_integration_lambda_log_group
   ]
 }
 
