@@ -3,13 +3,20 @@ locals {
   output_dist_file_name_backtraffic     = "lambda-code-backtraffic.zip"
   runtime_backtraffic                   = "python3.9"
   source_code_dist_dir_name_backtraffic = "lambda-code-dist-backtraffic"
+
+  lambda_backtraffic_file_lists         = flatten([
+                                        [for fn in fileset("${path.module}/${local.source_code_path_backtraffic}", "**"): "${path.module}/${local.source_code_path_backtraffic}/${fn}"],
+                                        "${path.module}/scripts/create_dist_pkg_backtraffic.sh"
+                                      ])
+  lambda_backtraffic_file_hashes        = jsonencode({ for fn in sort(local.lambda_backtraffic_file_lists) : fn => filesha256(fn) })
 }
 
 resource "null_resource" "install_python_dependencies_backtraffic" {
   # If this always runs archive_file is fine, else we have an issue during refresh:
   # https://github.com/hashicorp/terraform-provider-archive/issues/78
   triggers = {
-    always_run = timestamp()
+    #always_run = "${timestamp()}"
+    lambda_file_hashes = local.lambda_backtraffic_file_hashes
   }
 
   provisioner "local-exec" {
