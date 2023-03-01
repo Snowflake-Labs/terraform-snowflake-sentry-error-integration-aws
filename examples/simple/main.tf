@@ -15,10 +15,11 @@ module "sentry_integration" {
   lambda_subnet_ids         = var.lambda_subnet_ids
   vpc_id                    = var.vpc_id
 
-  database                         = var.database
-  monitoring_schema                = var.monitoring_schema
-  warehouse                        = var.warehouse
-  snowflake_integration_user_roles = var.snowflake_integration_user_roles
+  database                           = var.database
+  monitoring_schema                  = var.monitoring_schema
+  warehouse                          = var.warehouse
+  snowflake_integration_user_roles   = var.snowflake_integration_user_roles
+  send_to_sentry_function_user_roles = var.send_to_sentry_function_user_roles
 
   default_snowflake_error_dsn = var.default_snowflake_error_dsn
   sentry_hostname             = var.sentry_hostname

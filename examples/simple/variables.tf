@@ -121,6 +121,11 @@ variable "sentry_hostname" {
   type        = string
 }
 
+variable "send_to_sentry_function_user_roles" {
+  description = "List of roles to grant usage to send_to_sentry external function."
+  type        = list(string)
+  default     = []
+}
 
 data "aws_caller_identity" "current" {}
 data "aws_region" "current" {}
