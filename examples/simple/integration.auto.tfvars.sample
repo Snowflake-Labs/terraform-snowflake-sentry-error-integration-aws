@@ -4,10 +4,19 @@ env               = "dev"
 snowflake_account = "my-snowflake-account-id"
 
 # Snowflake
-aws_region                         = "us-west-2"
-database_name                      = "SNOWALERT"
-schema_name                        = "MONITORING"
-default_snowflake_error_dsn        = "https://sentry.com/sample_dsn"
+aws_region                          = "us-west-2"
+database                            = "MY_DB"
+monitoring_schema                   = "MY_SCHEMA"
+warehouse                           = "MY_WAREHOUSE"
+default_snowflake_error_dsn         = "https://sentry.com/sample_dsn"
+snowflake_integration_user_roles  = [
+    "MONITORING_RL",
+]
+default_snowflake_error_dsn = "https://dsn_id@my.sentry.dns/1"
+sentry_hostname             = "my.sentry.dns"
+
+slack_secrets_arn = "my.secrets.arn"
+jira_secrets_arn  = "my.secrets.arn"
 send_to_sentry_function_user_roles = [
-    "INGEST_RL", "ALERTING_RL",
+  "INGEST_RL", "ALERTING_RL",
 ]
