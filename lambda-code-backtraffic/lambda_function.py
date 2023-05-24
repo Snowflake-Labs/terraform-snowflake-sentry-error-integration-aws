@@ -60,11 +60,12 @@ def lambda_handler(event, context):
         LOG.info('Verification successful. Forwarding request.')
     # JIRA Request
     # elif 'jira-header' in headers:
-        # Grab secrets for the application.
-        # jira_secrets: Dict = json.loads(get_secrets(JIRA_SECRET_NAME))
-        # if type(sentry_secrets) is not dict:
-            # raise TypeError('Secrets response must be a dictionary.')
+    #     # Grab secrets for the application.
+    #     jira_secrets: Dict = json.loads(get_secrets(JIRA_SECRET_ARN))
+    #     if type(sentry_secrets) is not dict:
+    #         raise TypeError('Secrets response must be a dictionary.')
     else:
+        print(headers)
         LOG.warning('Unsupported path.')
         return error_response(404)
     
