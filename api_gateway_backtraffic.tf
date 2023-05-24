@@ -10,11 +10,11 @@ module "sentry_backtraffic_api_gateway" {
   default_stage_access_log_format          = "$context.identity.sourceIp - - [$context.requestTime] \"$context.httpMethod $context.routeKey $context.protocol\" $context.status $context.responseLength $context.requestId $context.integrationErrorMessage"
 
   default_route_settings = {
-    # logging_level            = "INFO" -- Supported only for WebSocket APIs
     detailed_metrics_enabled = true
-    # data_trace_enabled       = true   -- Supported only for WebSocket APIs
     throttling_burst_limit   = 5000
     throttling_rate_limit    = 10000
+    # logging_level            = "INFO" -- Supported only for WebSocket APIs
+    # data_trace_enabled       = true   -- Supported only for WebSocket APIs
   }
 
   integrations = {

@@ -6,19 +6,17 @@ locals {
   source_code_dist_dir_path = "lambda-code-dist"
   upload_dir                = "sentry_integration"
   lambda_sg_ids             = var.deploy_lambda_in_vpc && length(var.lambda_security_group_ids) == 0 ? [aws_security_group.sentry_integration_lambda_sg.0.id] : var.lambda_security_group_ids
-
-  lambda_file_lists         = flatten([
-                                        [for fn in fileset("${path.module}/${local.source_code_repo_dir_path}", "**"): "${path.module}/${local.source_code_repo_dir_path}/${fn}"],
-                                        "${path.module}/scripts/create_dist_pkg.sh"
-                                      ])
-  lambda_file_hashes        = jsonencode({ for fn in sort(local.lambda_file_lists) : fn => filesha256(fn) })
+  lambda_file_lists = flatten([
+    [for fn in fileset("${path.module}/${local.source_code_repo_dir_path}", "**") : "${path.module}/${local.source_code_repo_dir_path}/${fn}"],
+    "${path.module}/scripts/create_dist_pkg.sh"
+  ])
+  lambda_file_hashes = jsonencode({ for fn in sort(local.lambda_file_lists) : fn => filesha256(fn) })
 }
 
 resource "null_resource" "install_python_dependencies" {
   # # If this always runs archive_file is fine, else we have an issue during refresh:
   # # https://github.com/hashicorp/terraform-provider-archive/issues/78
   triggers = {
-    #always_run = "${timestamp()}"
     lambda_file_hashes = local.lambda_file_hashes
   }
 
