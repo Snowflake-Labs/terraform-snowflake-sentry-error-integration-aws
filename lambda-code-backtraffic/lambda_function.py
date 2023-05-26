@@ -18,9 +18,7 @@ ALLOWED_SLACK_URLS: List = [
     '/extensions/slack/action/',
     '/extensions/slack/options-load/',
 ]
-ALLOWED_JIRA_URLS: List = [
-
-]
+ALLOWED_JIRA_URLS: List = []
 
 
 def lambda_handler(event, context):
