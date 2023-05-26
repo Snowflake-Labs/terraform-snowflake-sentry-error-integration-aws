@@ -1,16 +1,16 @@
 import json
 import os
 from json.decoder import JSONDecodeError
-from typing import Dict, Text, List
+from typing import Dict, List, Optional, Text
 
 import requests
 from utils import (LOG, error_response, extract_from_b64, get_secrets,
                    verify_request)
 
 SENTRY_HOSTNAME = os.environ.get('SENTRY_HOSTNAME')
-
 SLACK_SECRET_ARN = os.environ.get('SLACK_SECRET_ARN')
 JIRA_SECRET_ARN = os.environ.get('JIRA_SECRET_ARN')
+JIRA_CLOUD_ID = os.environ.get('JIRA_CLOUD_ID')
 
 ALLOWED_SLACK_URLS: List = [
     '/extensions/slack/event/',
@@ -18,12 +18,14 @@ ALLOWED_SLACK_URLS: List = [
     '/extensions/slack/action/',
     '/extensions/slack/options-load/',
 ]
-ALLOWED_JIRA_URLS: List = []
+ALLOWED_JIRA_URLS: List = [
+
+]
 
 
 def lambda_handler(event, context):
-    headers: Dict = event['headers']
-    body: Dict = event['body']
+    headers: Optional[Dict] = event.get('headers')
+    body: Optional[Dict] = event.get('body')
     raw_path = event.get('rawPath')
     LOG.info(f'rawPath is {raw_path}.')
 
@@ -32,6 +34,8 @@ def lambda_handler(event, context):
 
     slack_signature: str = headers.get('x-slack-signature')
     slack_request_ts: str = headers.get('x-slack-request-timestamp')
+
+    jira_header: str = headers.get('x-pac-client-info')
 
     # Slack Request
     if slack_signature and slack_request_ts:
@@ -59,11 +63,12 @@ def lambda_handler(event, context):
 
         LOG.info('Verification successful. Forwarding request.')
     # JIRA Request
-    # elif 'jira-header' in headers:
-    #     # Grab secrets for the application.
-    #     jira_secrets: Dict = json.loads(get_secrets(JIRA_SECRET_ARN))
-    #     if type(sentry_secrets) is not dict:
-    #         raise TypeError('Secrets response must be a dictionary.')
+    elif jira_header;
+        jira_params: Dict = dict(map(lambda s: s.split('='), jira_header.split(',')))
+        # Grab secrets for the application.
+        if jira_params['CloudId'] == :
+            LOG.warning('Signature Verification failed.')
+
     else:
         print(headers)
         LOG.warning('Unsupported path.')

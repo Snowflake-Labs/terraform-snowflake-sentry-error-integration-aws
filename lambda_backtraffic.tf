@@ -70,6 +70,7 @@ resource "aws_lambda_function" "sentry_backtraffic_proxy_lambda" {
       SENTRY_HOSTNAME  = var.sentry_hostname
       SLACK_SECRET_ARN = var.slack_secrets_arn
       JIRA_SECRET_ARN  = var.jira_secrets_arn
+      JIRA_CLOUD_ID    = var.jira_cloud_id
     }
   }
 
