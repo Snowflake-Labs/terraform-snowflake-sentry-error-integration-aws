@@ -1,5 +1,5 @@
 module "sentry_error_integration" {
-  source = "git@github.com:Snowflake-Labs/terraform-snowflake-notification-integration-aws.git?ref=v0.2.3"
+  source = "Snowflake-Labs/notification-integration-aws/snowflake"
 
   prefix                           = "${var.prefix}-sentry"
   aws_region                       = var.aws_region
