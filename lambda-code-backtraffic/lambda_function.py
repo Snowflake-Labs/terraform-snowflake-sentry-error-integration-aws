@@ -58,15 +58,14 @@ def lambda_handler(event, context):
         ):
             LOG.warning('Signature Verification failed.')
             return error_response(403)
-
         LOG.info('Verification successful. Forwarding request.')
     # JIRA Request
-    elif jira_header;
+    elif jira_header:
         jira_params: Dict = dict(map(lambda s: s.split('='), jira_header.split(',')))
         # Grab secrets for the application.
-        if jira_params['CloudId'] == :
+        if jira_params['CloudId'] != JIRA_CLOUD_ID:
             LOG.warning('Signature Verification failed.')
-
+        LOG.info('Verification successful. Forwarding request.')
     else:
         print(headers)
         LOG.warning('Unsupported path.')
