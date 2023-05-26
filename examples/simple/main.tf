@@ -25,6 +25,7 @@ module "sentry_integration" {
   sentry_hostname             = var.sentry_hostname
   jira_secrets_arn            = var.jira_secrets_arn
   slack_secrets_arn           = var.slack_secrets_arn
+  jira_cloud_id               = var.jira_cloud_id
 
   providers = {
     snowflake.api_integration_role          = snowflake.api_integration_role

@@ -14,6 +14,11 @@ variable "default_snowflake_error_dsn" {
   type        = string
 }
 
+variable "jira_cloud_id" {
+  description = "ID of your JIRA cloud instance."
+  type        = string
+}
+
 # Optional Variables
 variable "aws_region" {
   description = "The AWS region in which the AWS infrastructure is created."
