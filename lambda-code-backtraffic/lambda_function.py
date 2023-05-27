@@ -70,6 +70,10 @@ def lambda_handler(event, context):
 
     url = f'https://{SENTRY_HOSTNAME}{raw_path}'
     LOG.info(f'Using Sentry URL: {url}')
+
+    if not body:
+        body = {}
+
     LOG.info('Forwarding request.')
     r = requests.post(
         url,
