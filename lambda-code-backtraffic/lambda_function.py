@@ -63,7 +63,7 @@ def lambda_handler(event, context):
     elif jira_header:
         jira_params: Dict = dict(map(lambda s: s.split('='), jira_header.split(',')))
         # Grab secrets for the application.
-        if jira_params['CloudId'] != JIRA_CLOUD_ID:
+        if jira_params['cloudId'] != JIRA_CLOUD_ID:
             LOG.warning('Signature Verification failed.')
         LOG.info('Verification successful. Forwarding request.')
     else:
