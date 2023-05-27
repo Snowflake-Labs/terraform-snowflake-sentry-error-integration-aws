@@ -41,9 +41,6 @@ def lambda_handler(event, context):
             LOG.warning('Unsupported path.')
             return error_response(404)
 
-        url = f'https://{SENTRY_HOSTNAME}{raw_path}'
-        LOG.info(f'Using Sentry URL: {url}')
-
         sentry_secrets: Dict = json.loads(get_secrets(SLACK_SECRET_ARN))
         if type(sentry_secrets) is not dict:
             raise TypeError('Secrets response must be a dictionary.')
@@ -70,7 +67,9 @@ def lambda_handler(event, context):
         print(headers)
         LOG.warning('Unsupported path.')
         return error_response(404)
-    
+
+    url = f'https://{SENTRY_HOSTNAME}{raw_path}'
+    LOG.info(f'Using Sentry URL: {url}')
     LOG.info('Forwarding request.')
     r = requests.post(
         url,
