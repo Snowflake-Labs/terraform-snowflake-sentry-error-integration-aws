@@ -72,7 +72,7 @@ def lambda_handler(event, context):
     LOG.info(f'Using Sentry URL: {url}')
 
     if not body:
-        body = {}
+        body = json.dumps({})
 
     LOG.info('Forwarding request.')
     r = requests.post(
