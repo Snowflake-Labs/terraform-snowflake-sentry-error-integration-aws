@@ -7,4 +7,8 @@ resource "snowflake_function_grant" "send_to_sentry_function_grant_usage" {
   argument_data_types = ["VARCHAR", "VARCHAR", "VARCHAR", "VARCHAR", "VARCHAR", "VARCHAR"]
   privilege           = "USAGE"
   roles               = var.send_to_sentry_function_user_roles
+
+  depends_on = [
+    snowflake_external_function.send_to_sentry
+  ]
 }
