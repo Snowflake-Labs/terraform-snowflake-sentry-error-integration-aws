@@ -20,3 +20,8 @@ jira_secrets_arn  = "my.secrets.arn"
 send_to_sentry_function_user_roles = [
   "INGEST_RL", "ALERTING_RL",
 ]
+
+deploy_lambda_in_vpc      = true
+vpc_id                    = "my.vpc_id"
+lambda_subnet_ids         = ["my.subnet_id"]
+lambda_security_group_ids = ["my.security_group_id"]
