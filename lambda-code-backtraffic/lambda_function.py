@@ -72,10 +72,10 @@ def lambda_handler(event, context):
     LOG.info(f'Using Sentry URL: {url}')
 
     if not body:
-         body: Union[Dict, str] = json.dumps({})
+        body: Union[Dict, str] = json.dumps({})
 
     if isinstance(body, dict):
-         body: Union[Dict, str] = json.dumps(body)
+        body: Union[Dict, str] = json.dumps(body)
 
     LOG.info('Forwarding request.')
     r = requests.post(
