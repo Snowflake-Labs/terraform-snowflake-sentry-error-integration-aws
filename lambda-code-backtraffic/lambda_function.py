@@ -1,7 +1,7 @@
 import json
 import os
 from json.decoder import JSONDecodeError
-from typing import Dict, List, Optional, Text
+from typing import Dict, List, Optional, Union
 
 import requests
 from utils import (LOG, error_response, extract_from_b64, get_secrets,
@@ -23,12 +23,12 @@ ALLOWED_JIRA_URLS: List = []
 
 def lambda_handler(event, context):
     headers: Optional[Dict] = event.get('headers')
-    body: Optional[Dict] = event.get('body')
+    body: Union[Dict, str] = event.get('body')
     raw_path = event.get('rawPath')
     LOG.info(f'rawPath is {raw_path}.')
 
     if event['isBase64Encoded']:
-        body: str = extract_from_b64(body)
+        body: Union[Dict, str] = extract_from_b64(body)
 
     slack_signature: str = headers.get('x-slack-signature')
     slack_request_ts: str = headers.get('x-slack-request-timestamp')
@@ -72,7 +72,10 @@ def lambda_handler(event, context):
     LOG.info(f'Using Sentry URL: {url}')
 
     if not body:
-        body = {}
+        body: Union[Dict, str] = json.dumps({})
+
+    if isinstance(body, dict):
+        body: Union[Dict, str] = json.dumps(body)
 
     LOG.info('Forwarding request.')
     r = requests.post(
