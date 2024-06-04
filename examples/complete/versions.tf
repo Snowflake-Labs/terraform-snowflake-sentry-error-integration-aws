@@ -11,5 +11,10 @@ terraform {
       source  = "Snowflake-Labs/snowflake"
       version = "~> 0.64.0"
     }
+
+    archive = {
+      source  = "hashicorp/archive"
+      version = "2.4.0"
+    }
   }
 }

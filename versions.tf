@@ -17,5 +17,10 @@ terraform {
         snowflake.monitoring_role,
       ]
     }
+
+    archive = {
+      source  = "hashicorp/archive"
+      version = "2.4.0"
+    }
   }
 }
