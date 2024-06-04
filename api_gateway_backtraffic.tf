@@ -1,5 +1,5 @@
 module "sentry_backtraffic_api_gateway" {
-  source = "terraform-aws-modules/apigateway-v2/aws"
+  source  = "terraform-aws-modules/apigateway-v2/aws"
   version = "4.0.0"
 
   name          = "${local.sentry_integration_prefix}-backtraffic"
