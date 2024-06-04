@@ -28,7 +28,7 @@ def lambda_handler(event, context):
     LOG.info(f'rawPath is {raw_path}.')
 
     if event['isBase64Encoded']:
-         body: Union[Dict, str] = extract_from_b64(body)
+        body: Union[Dict, str] = extract_from_b64(body)
 
     slack_signature: str = headers.get('x-slack-signature')
     slack_request_ts: str = headers.get('x-slack-request-timestamp')
