@@ -121,12 +121,14 @@ data "aws_partition" "current" {}
 
 
 locals {
-  account_id = data.aws_caller_identity.current.account_id
-  aws_region = data.aws_region.current.name
+  account_id     = data.aws_caller_identity.current.account_id
+  aws_region     = data.aws_region.current.name
+  aws_partition  = data.aws_partition.current.partition
+  aws_dns_suffix = data.aws_partition.current.dns_suffix
 }
 
 locals {
-  inferred_api_gw_invoke_url = "https://${aws_api_gateway_rest_api.ef_to_lambda.id}.execute-api.${local.aws_region}.amazonaws.com/"
+  inferred_api_gw_invoke_url = "https://${aws_api_gateway_rest_api.ef_to_lambda.id}.execute-api.${local.aws_region}.${local.aws_dns_suffix}/"
   sentry_integration_prefix  = "${var.prefix}-sentry-integration"
 }
 
@@ -140,8 +142,5 @@ locals {
   sentry_sns_policy_name = "${local.sentry_integration_prefix}-sns-policy"
   sentry_sns_topic_name  = "${local.sentry_integration_prefix}-sns-topic"
 
-  backtraffic_lambda_secrets_arns = [
-    var.jira_secrets_arn,
-    var.slack_secrets_arn,
-  ]
+  backtraffic_lambda_secrets_arns = [for i in [var.jira_secrets_arn, var.slack_secrets_arn]: i if i != null]
 }

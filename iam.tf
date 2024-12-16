@@ -25,7 +25,7 @@ resource "aws_iam_role" "sentry_integration_api_gateway_assume_role" {
 
 resource "aws_iam_role_policy_attachment" "gateway_logger_policy_attachment" {
   role       = aws_iam_role.sentry_integration_api_gateway_assume_role.id
-  policy_arn = "arn:${var.arn_format}:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs"
+  policy_arn = "arn:${local.aws_partition}:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs"
 }
 
 resource "aws_api_gateway_account" "api_gateway" {
@@ -100,7 +100,7 @@ data "aws_iam_policy_document" "sentry_integration_lambda_policy_doc" {
     sid    = "WriteCloudWatchLogs"
     effect = "Allow"
     resources = [
-      "arn:${var.arn_format}:logs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:log-group:/aws/lambda/${local.lambda_function_name}:*"
+      "arn:${local.aws_partition}:logs:${local.aws_region}:${local.account_id}:log-group:/aws/lambda/${local.lambda_function_name}:*"
     ]
 
     actions = [
@@ -143,7 +143,7 @@ resource "aws_iam_role_policy_attachment" "sentry_integration_lambda_vpc_policy_
   count = var.deploy_lambda_in_vpc ? 1 : 0
 
   role       = aws_iam_role.sentry_integration_lambda_assume_role.name
-  policy_arn = "arn:${var.arn_format}:iam::aws:policy/service-role/AWSLambdaENIManagementAccess"
+  policy_arn = "arn:${local.aws_partition}:iam::aws:policy/service-role/AWSLambdaENIManagementAccess"
 }
 
 # -----------------------------------------------------------------------------------------------
@@ -250,7 +250,7 @@ data "aws_iam_policy_document" "sentry_backtraffic_proxy_lambda_policy_doc" {
   statement {
     sid       = "WriteCloudWatchLogs"
     effect    = "Allow"
-    resources = ["arn:${var.arn_format}:logs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:log-group:/aws/lambda/${local.lambda_backtraffic_function_name}:*"]
+    resources = ["arn:${local.aws_partition}:logs:${local.aws_region}:${local.account_id}:log-group:/aws/lambda/${local.lambda_backtraffic_function_name}:*"]
 
     actions = [
       "logs:CreateLogStream",
@@ -258,17 +258,20 @@ data "aws_iam_policy_document" "sentry_backtraffic_proxy_lambda_policy_doc" {
     ]
   }
 
-  statement {
-    sid       = "AccessGetSecretVersions"
-    effect    = "Allow"
-    resources = local.backtraffic_lambda_secrets_arns
-    actions = [
-      "secretsmanager:GetResourcePolicy",
-      "secretsmanager:GetSecretValue",
-      "secretsmanager:DescribeSecret",
-      "secretsmanager:ListSecretVersionIds",
-      "secretsmanager:ListSecrets"
-    ]
+  dynamic "statement" {
+    for_each = length(local.backtraffic_lambda_secrets_arns) == 0 ? [] : [1]
+    content {
+      sid       = "AccessGetSecretVersions"
+      effect    = "Allow"
+      resources = local.backtraffic_lambda_secrets_arns
+      actions = [
+        "secretsmanager:GetResourcePolicy",
+        "secretsmanager:GetSecretValue",
+        "secretsmanager:DescribeSecret",
+        "secretsmanager:ListSecretVersionIds",
+        "secretsmanager:ListSecrets"
+      ]
+    }
   }
 
   statement {
