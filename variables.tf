@@ -142,5 +142,5 @@ locals {
   sentry_sns_policy_name = "${local.sentry_integration_prefix}-sns-policy"
   sentry_sns_topic_name  = "${local.sentry_integration_prefix}-sns-topic"
 
-  backtraffic_lambda_secrets_arns = [for i in [var.jira_secrets_arn, var.slack_secrets_arn]: i if i != null]
+  backtraffic_lambda_secrets_arns = [for i in [var.jira_secrets_arn, var.slack_secrets_arn] : i if i != null]
 }
