@@ -1,4 +1,6 @@
 resource "snowflake_function_grant" "send_to_sentry_function_grant_usage" {
+  count = length(var.send_to_sentry_function_user_roles) == 0 ? 0 : 1
+
   provider = snowflake.monitoring_role
 
   database_name = var.database
