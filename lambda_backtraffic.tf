@@ -1,7 +1,7 @@
 locals {
   source_code_path_backtraffic          = "lambda-code-backtraffic"
   output_dist_file_name_backtraffic     = "lambda-code-backtraffic.zip"
-  runtime_backtraffic                   = "python3.9"
+  runtime_backtraffic                   = "python3.11"
   source_code_dist_dir_name_backtraffic = "lambda-code-dist-backtraffic"
 
   lambda_backtraffic_file_lists = flatten([

@@ -2,7 +2,7 @@ locals {
   source_code_repo_dir_path = "lambda-code"
   lambda_code_dir           = "lambda_src"
   output_dist_file_name     = "lambda-code.zip"
-  runtime                   = "python3.9"
+  runtime                   = "python3.11"
   source_code_dist_dir_path = "lambda-code-dist"
   upload_dir                = "sentry_integration"
   lambda_sg_ids             = var.deploy_lambda_in_vpc && length(var.lambda_security_group_ids) == 0 ? [aws_security_group.sentry_integration_lambda_sg.0.id] : var.lambda_security_group_ids
