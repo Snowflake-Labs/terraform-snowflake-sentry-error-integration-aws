@@ -1,5 +1,6 @@
 import logging
 import os
+import re
 from datetime import date, timedelta
 from typing import Any
 
@@ -19,6 +20,43 @@ CONSOLE_LOGGER = setup_logger(
 SENTRY_DRIVER_LOGGER = setup_logger(
     'sentry_driver', logging.INFO
 )
+
+STATEMENT_ERROR_PATTERN = re.compile(
+    r"Uncaught exception of type '(?P<exception_type>[^']+)' "
+    r"on line (?P<line>\d+) at position (?P<position>\d+) : "
+    r"(?P<statement_error>.*)",
+    re.IGNORECASE,
+)
+QRR_EXECUTOR_JOB_PATTERN = re.compile(
+    r'\bjob\s+QRR_EXECUTOR_[0-9A-F]+\b',
+    re.IGNORECASE,
+)
+
+
+def normalize_error_for_fingerprint(error: str) -> str:
+    statement_error = STATEMENT_ERROR_PATTERN.search(error)
+    if not statement_error:
+        return error.strip()
+
+    normalized_statement_error = QRR_EXECUTOR_JOB_PATTERN.sub(
+        'job <qrr-executor-id>',
+        statement_error.group('statement_error'),
+    )
+    return '|'.join([
+        statement_error.group('exception_type'),
+        f"line:{statement_error.group('line')}",
+        f"position:{statement_error.group('position')}",
+        normalized_statement_error,
+    ])
+
+
+def sentry_fingerprint(name: str, history_type: str, error: str) -> list[str]:
+    return [
+        'snowflake-error',
+        history_type.lower(),
+        name,
+        normalize_error_for_fingerprint(error),
+    ]
 
 
 def process_row(
@@ -44,6 +82,7 @@ def process_row(
     try:
         with push_scope() as scope:
             scope.set_extra('history_url', history_url)
+            scope.fingerprint = sentry_fingerprint(name, history_type, error)
             sentry_sdk.set_tag(
                 (
                     'PIPE_NAME'
